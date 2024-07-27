@@ -4,13 +4,12 @@ import com.harleylizard.language.token.Token
 import java.util.*
 
 class Lexer {
-
 	fun parse(input: String) : List<Token> {
 		val tokens = mutableListOf<Token>()
 
 		val scanner = Scanner(input.replace(spliterator, " $1 "))
 		while (scanner.hasNext()) {
-			Token.get(scanner.next())?.let { tokens += it }
+			Token.get(scanner.next()).let(tokens::add)
 		}
 		return Collections.unmodifiableList(tokens)
 	}

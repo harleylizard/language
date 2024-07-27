@@ -3,3 +3,4 @@ plugins {
 }
 rootProject.name = "language"
 include("parser")
+include("gradle-plugin")

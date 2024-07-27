@@ -16,6 +16,7 @@ subprojects {
 allprojects {
     dependencies {
         testImplementation(kotlin("test"))
+        implementation("it.unimi.dsi:fastutil:8.5.13")
     }
 
     tasks.test {
