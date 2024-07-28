@@ -6,7 +6,8 @@ sealed interface Token {
 		@JvmStatic
 		fun get(value: String): Token {
 			return when (value) {
-				"func" -> KeywordToken.FUNCTION
+				"class" -> KeywordToken.CLASS
+				"function" -> KeywordToken.FUNCTION
 				"var" -> KeywordToken.VARIABLE
 				"byte" -> KeywordToken.BYTE
 				"short" -> KeywordToken.SHORT
@@ -25,6 +26,8 @@ sealed interface Token {
 				"}" -> SeparatorToken.CLOSE_CURLY_BRACKET
 				"[" -> SeparatorToken.OPEN_SQUARE_BRACKET
 				"]" -> SeparatorToken.CLOSE_SQUARE_BRACKET
+				":" -> SeparatorToken.COLON
+				"," -> SeparatorToken.COMMA
 				else -> LiteralToken(value)
 			}
 		}

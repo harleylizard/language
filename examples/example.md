@@ -1,9 +1,9 @@
 ```
 
 
-func foo() {
+function foo() {
     var i = 0
 }
 
-func key() -> 0
+function key() -> 0
 ```

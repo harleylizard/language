@@ -7,7 +7,6 @@ class LexerTest {
 
 	@Test
 	fun test() {
-		val lexer = Lexer()
-		val tokens = lexer.parse("func foo(j: int) { var i = 0 }")
+		val tokens = Lexer.parse("func foo() {}")
 	}
 }
