@@ -23,6 +23,27 @@ class Parser(private val tokens: Iterator<Token>) {
 		return Collections.unmodifiableList(tree)
 	}
 
+	private fun parseLambdaParameter() {
+		val parameters = mutableListOf<ParameterTree>()
+		while (token != SeparatorToken.CLOSE_ROUND_BRACKET) {
+			parameters += parseType()
+		}
+
+
+	}
+
+	private fun parseType(): ParameterTree {
+		val name = nextLiteral()
+		next(SeparatorToken.COLON)
+		if (next(SeparatorToken.OPEN_ROUND_BRACKET)) {
+			parseLambdaParameter()
+			return ParameterTree(name, "V", false)
+		}
+		val type = nextType()
+		val reference = next(OperatorToken.BITWISE_AND)
+		return ParameterTree(name, type, reference)
+	}
+
 	private fun parseData(): DataTree {
 		next(KeywordToken.DATA)
 		val name = nextLiteral()
@@ -45,25 +66,12 @@ class Parser(private val tokens: Iterator<Token>) {
 		return PackageTree(literal.replace(".", "/"))
 	}
 
-	private fun parseImport(): ImportTree {
-		next(KeywordToken.IMPORT)
-		val literal = nextLiteral()
-		return ImportTree(literal.substring(literal.lastIndexOf(".") + 1, literal.length), literal.replace(".", "/"))
-	}
-
 	private fun parseParameters(): List<ParameterTree> {
 		val parameters = mutableListOf<ParameterTree>()
 		while (token != SeparatorToken.CLOSE_ROUND_BRACKET) {
-			val name = nextLiteral()
-			next(SeparatorToken.COLON)
+			parameters += parseType()
 
-			val type = nextType()
-			val b = next(OperatorToken.BITWISE_AND)
-			parameters += ParameterTree(name, type, b)
-
-			if (token == SeparatorToken.COMMA) {
-				next(SeparatorToken.COMMA)
-			}
+			next(SeparatorToken.COMMA)
 		}
 		return Collections.unmodifiableList(parameters)
 	}
@@ -100,6 +108,12 @@ class Parser(private val tokens: Iterator<Token>) {
 		}
 
 		return SubClassTree(name, ListTree(Collections.unmodifiableList(list)))
+	}
+
+	private fun parseImport(): ImportTree {
+		next(KeywordToken.IMPORT)
+		val literal = nextLiteral()
+		return ImportTree(literal.substring(literal.lastIndexOf(".") + 1, literal.length), literal.replace(".", "/"))
 	}
 
 	private fun <T : Token> next(t: T): Boolean {

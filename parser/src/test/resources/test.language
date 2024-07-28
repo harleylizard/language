@@ -21,4 +21,9 @@ class Example {
 
     function byReference(ints: array<int>&) {
     }
+
+    function supplier(s: (String)) {
+    }
+
+
 }

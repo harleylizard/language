@@ -2,7 +2,8 @@ package com.harleylizard.language.tests
 
 import com.harleylizard.language.Lexer
 import com.harleylizard.language.Parser
-import com.harleylizard.language.tree.*
+import com.harleylizard.language.parser.Header
+import com.harleylizard.language.tree.ClassTree
 import org.junit.jupiter.api.Test
 import org.objectweb.asm.ClassWriter
 import java.io.ByteArrayOutputStream
@@ -16,25 +17,12 @@ class AsmifyTest {
 		val tokens = Lexer.parse(Resources.readString("test.language"))
 		val list = Parser(tokens.iterator()).parse()
 
-		val map = mutableMapOf<String, String>()
-		var packageName = ""
-		for (tree in list) {
-			when (tree) {
-				is ImportTree -> map[tree.name] = tree.source
-				is PackageTree -> packageName = tree.name
-				else -> continue
-			}
-		}
-		for (tree in list) {
-			when (tree) {
-				is ClassTree -> map[tree.name] = SubClassTree.className(packageName, tree.name)
-				else -> continue
-			}
-		}
+		val header = Header(tokens.iterator())
+
 		for (tree in list) {
 			if (tree is ClassTree) {
 				val cw = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
-				tree.asmify(packageName, map).accept(cw)
+				tree.asmify(header).accept(cw)
 
 				ByteArrayOutputStream().use { byteArrayOf ->
 					val path = Paths.get("build/language/", "${tree.name}.class")
