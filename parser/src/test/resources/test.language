@@ -1,11 +1,16 @@
+package com.example
 
 import java.lang.String
 
+data Vector3f {
+    x: float
+    y: float
+    z: float
+}
+
 class Example {
 
-    function foo() {
-    }
-
     function getInt(x: String, y: array<String>) -> int {
+        return 0
     }
 }

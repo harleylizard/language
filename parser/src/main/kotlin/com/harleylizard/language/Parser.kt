@@ -15,10 +15,34 @@ class Parser(private val tokens: Iterator<Token>) {
 				KeywordToken.FUNCTION -> tree += parseFunction()
 				KeywordToken.CLASS -> tree += parseClass()
 				KeywordToken.IMPORT -> tree += parseImport()
+				KeywordToken.PACKAGE -> tree += parsePackage()
+				KeywordToken.DATA -> tree += parseData()
 				else -> token = tokens.next()
 			}
 		}
 		return Collections.unmodifiableList(tree)
+	}
+
+	private fun parseData(): DataTree {
+		next(KeywordToken.DATA)
+		val name = nextLiteral()
+		next(SeparatorToken.OPEN_CURLY_BRACKET)
+
+		val parameters = mutableListOf<ParameterTree>()
+		while (token != SeparatorToken.CLOSE_CURLY_BRACKET) {
+			val paramName = nextLiteral()
+			next(SeparatorToken.COLON)
+			parameters += ParameterTree(paramName, nextType())
+		}
+		token = tokens.next()
+
+		return DataTree(name, Collections.unmodifiableList(parameters))
+	}
+
+	private fun parsePackage(): PackageTree {
+		next(KeywordToken.PACKAGE)
+		val literal = nextLiteral()
+		return PackageTree(literal.replace(".", "/"))
 	}
 
 	private fun parseImport(): ImportTree {
@@ -58,7 +82,7 @@ class Parser(private val tokens: Iterator<Token>) {
 		return FunctionTree(Opcodes.ACC_PRIVATE, name, parameters, type, ListTree(emptyList()))
 	}
 
-	private fun parseClass(): ClassTree {
+	private fun parseClass(): SubClassTree {
 		next(KeywordToken.CLASS)
 		val name = nextLiteral()
 		next(SeparatorToken.OPEN_CURLY_BRACKET)
@@ -72,7 +96,7 @@ class Parser(private val tokens: Iterator<Token>) {
 			}
 		}
 
-		return ClassTree(name, ListTree(Collections.unmodifiableList(list)))
+		return SubClassTree(name, ListTree(Collections.unmodifiableList(list)))
 	}
 
 	private fun <T : Token> next(t: T) {
