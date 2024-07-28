@@ -24,29 +24,9 @@ class FunctionTree(
 		val builder = StringBuilder()
 		builder.append("(")
 		for (parameter in parameters) {
-			val type = parameter.type
-			builder.append(get(type, imports))
+			builder.append(parameter.asmify(imports))
 		}
 		builder.append(")")
 		return builder.toString()
-	}
-
-	companion object {
-		@JvmStatic
-		fun get(type: String, imports: Map<String, String>): String {
-			var reference = type
-
-			val array = type.startsWith("[")
-			if (array) {
-				reference = reference.substring(1)
-			}
-			if (imports.containsKey(reference)) {
-				return when {
-					array -> "[L${imports[reference]};"
-					else -> "L${imports[reference]};"
-				}
-			}
-			return type
-		}
 	}
 }

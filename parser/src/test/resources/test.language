@@ -10,7 +10,15 @@ data Vector3f {
 
 class Example {
 
-    function getInt(x: String, y: array<String>) -> int {
-        return 0
+    function foo() {
+    }
+
+    function bar(i: int) {
+    }
+
+    function byValue(ints: array<int>) {
+    }
+
+    function byReference(ints: array<int>&) {
     }
 }

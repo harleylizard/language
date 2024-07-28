@@ -12,7 +12,7 @@ class DataTree(override val name: String, private val fields: List<ParameterTree
 		node.visit(Opcodes.V19, Opcodes.ACC_PUBLIC or Opcodes.ACC_FINAL, className, null, "java/lang/Object", null)
 
 		for (field in fields) {
-			val asmType = FunctionTree.get(field.type, imports)
+			val asmType = field.asmify(imports)
 			val name = field.name
 			val fieldNode = FieldNode(Opcodes.ACC_PRIVATE or Opcodes.ACC_FINAL, name, asmType, null, null)
 			fieldNode.visitEnd()
@@ -36,7 +36,7 @@ class DataTree(override val name: String, private val fields: List<ParameterTree
 
 			methodNode.visitVarInsn(Opcodes.ALOAD, 0)
 
-			val asmType = FunctionTree.get(field.type, imports)
+			val asmType = field.asmify(imports)
 			methodNode.visitVarInsn(Asmify.getLoadType(asmType), i + 1)
 			methodNode.visitFieldInsn(Opcodes.PUTFIELD, className, field.name, asmType)
 		}
@@ -52,7 +52,7 @@ class DataTree(override val name: String, private val fields: List<ParameterTree
 		val builder = StringBuilder()
 		builder.append("(")
 		for (field in fields) {
-			builder.append(FunctionTree.get(field.type, imports))
+			builder.append(field.asmify(imports))
 		}
 		builder.append(")V")
 		return builder.toString()

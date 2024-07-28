@@ -32,7 +32,7 @@ class Parser(private val tokens: Iterator<Token>) {
 		while (token != SeparatorToken.CLOSE_CURLY_BRACKET) {
 			val paramName = nextLiteral()
 			next(SeparatorToken.COLON)
-			parameters += ParameterTree(paramName, nextType())
+			parameters += ParameterTree(paramName, nextType(), false)
 		}
 		token = tokens.next()
 
@@ -56,7 +56,10 @@ class Parser(private val tokens: Iterator<Token>) {
 		while (token != SeparatorToken.CLOSE_ROUND_BRACKET) {
 			val name = nextLiteral()
 			next(SeparatorToken.COLON)
-			parameters += ParameterTree(name, nextType())
+
+			val type = nextType()
+			val b = next(OperatorToken.BITWISE_AND)
+			parameters += ParameterTree(name, type, b)
 
 			if (token == SeparatorToken.COMMA) {
 				next(SeparatorToken.COMMA)
@@ -99,10 +102,12 @@ class Parser(private val tokens: Iterator<Token>) {
 		return SubClassTree(name, ListTree(Collections.unmodifiableList(list)))
 	}
 
-	private fun <T : Token> next(t: T) {
+	private fun <T : Token> next(t: T): Boolean {
 		if (token == t) {
 			token = tokens.next()
+			return true
 		}
+		return false
 	}
 
 	private fun nextLiteral(): String {

@@ -6,7 +6,7 @@ import java.util.*
 
 object Lexer {
 	@JvmStatic
-	private val regex = Regex("([\\\\,{}()+:\\-*/=<>])")
+	private val regex = Regex("([\\\\,{}()+&:\\-*/=<>])")
 
 	@JvmStatic
 	fun parse(source: String): List<Token> {
