@@ -1,3 +1,3 @@
 package com.harleylizard.language.tree
 
-sealed interface Tree {}
+sealed interface Tree

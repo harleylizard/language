@@ -1,7 +1,7 @@
 package com.harleylizard.language.tests
 
 import com.harleylizard.language.Lexer
-import com.harleylizard.language.tree.Parser
+import com.harleylizard.language.Parser
 import org.junit.jupiter.api.Test
 
 class ParserTest {

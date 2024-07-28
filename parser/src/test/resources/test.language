@@ -1,12 +1,9 @@
 
 class Example {
 
-    function john() {
+    function foo() {
     }
-}
 
-function foo() {
-}
-
-function bar(i: int, f: float) {
+    function bar() -> int {
+    }
 }

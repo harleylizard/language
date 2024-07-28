@@ -20,6 +20,8 @@ sealed interface Token {
 				"*" -> OperatorToken.MULTIPLY
 				"/" -> OperatorToken.DIVIDE
 				"=" -> OperatorToken.EQUALS
+				">" -> OperatorToken.GREATER_THAN
+				"<" -> OperatorToken.LESS_THAN
 				"(" -> SeparatorToken.OPEN_ROUND_BRACKET
 				")" -> SeparatorToken.CLOSE_ROUND_BRACKET
 				"{" -> SeparatorToken.OPEN_CURLY_BRACKET

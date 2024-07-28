@@ -1,6 +1,8 @@
-package com.harleylizard.language.tree
+package com.harleylizard.language
 
 import com.harleylizard.language.token.*
+import com.harleylizard.language.tree.*
+import org.objectweb.asm.Opcodes
 import java.util.*
 
 class Parser(private val tokens: Iterator<Token>) {
@@ -9,9 +11,9 @@ class Parser(private val tokens: Iterator<Token>) {
 	fun parse(): List<Tree> {
 		val tree = mutableListOf<Tree>()
 		while (token != EOFToken) {
-			when {
-				token == KeywordToken.FUNCTION -> tree += parseFunction()
-				token == KeywordToken.CLASS -> tree += parseClass()
+			when (token) {
+				KeywordToken.FUNCTION -> tree += parseFunction()
+				KeywordToken.CLASS -> tree += parseClass()
 				else -> token = tokens.next()
 			}
 		}
@@ -23,7 +25,7 @@ class Parser(private val tokens: Iterator<Token>) {
 		while (token != SeparatorToken.CLOSE_ROUND_BRACKET) {
 			val name = nextLiteral()
 			next(SeparatorToken.COLON)
-			parameters += ParameterTree(name, getType())
+			parameters += ParameterTree(name, nextType())
 
 			if (token == SeparatorToken.COMMA) {
 				next(SeparatorToken.COMMA)
@@ -37,11 +39,16 @@ class Parser(private val tokens: Iterator<Token>) {
 		val name = nextLiteral()
 		next(SeparatorToken.OPEN_ROUND_BRACKET)
 		val parameters = parseParameters()
+		token = tokens.next()
 
+		var type = "void"
+		if (nextArrow()) {
+			type = nextType()
+		}
 		next(SeparatorToken.OPEN_CURLY_BRACKET)
 		next(SeparatorToken.CLOSE_CURLY_BRACKET)
 
-		return FunctionTree(name, parameters, ListTree(emptyList()))
+		return FunctionTree(Opcodes.ACC_PUBLIC, name, parameters, type, ListTree(emptyList()))
 	}
 
 	private fun parseClass(): ClassTree {
@@ -57,6 +64,7 @@ class Parser(private val tokens: Iterator<Token>) {
 				else -> token = tokens.next()
 			}
 		}
+
 		return ClassTree(name, ListTree(Collections.unmodifiableList(list)))
 	}
 
@@ -76,7 +84,7 @@ class Parser(private val tokens: Iterator<Token>) {
 		return ""
 	}
 
-	private fun getType(): String {
+	private fun nextType(): String {
 		val klass = when (token) {
 			KeywordToken.BYTE -> "byte"
 			KeywordToken.SHORT -> "short"
@@ -89,5 +97,16 @@ class Parser(private val tokens: Iterator<Token>) {
 		}
 		token = tokens.next()
 		return klass
+	}
+
+	private fun nextArrow(): Boolean {
+		if (token == OperatorToken.SUBTRACT) {
+			token = tokens.next()
+			if (token == OperatorToken.GREATER_THAN) {
+				token = tokens.next()
+				return true
+			}
+		}
+		return false
 	}
 }
