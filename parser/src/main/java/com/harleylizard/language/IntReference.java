@@ -7,11 +7,11 @@ public final class IntReference {
         this.i = i;
     }
 
-    public int getI() {
+    public int getValue() {
         return i;
     }
 
-    public void setI(int i) {
+    public void setValue(int i) {
         this.i = i;
     }
 }

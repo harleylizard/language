@@ -28,8 +28,6 @@ class Parser(private val tokens: Iterator<Token>) {
 		while (token != SeparatorToken.CLOSE_ROUND_BRACKET) {
 			parameters += parseType()
 		}
-
-
 	}
 
 	private fun parseType(): ParameterTree {

@@ -7,11 +7,11 @@ public final class LongReference {
         this.l = l;
     }
 
-    public long getL() {
+    public long getValue() {
         return l;
     }
 
-    public void setL(long l) {
+    public void setValue(long l) {
         this.l = l;
     }
 }

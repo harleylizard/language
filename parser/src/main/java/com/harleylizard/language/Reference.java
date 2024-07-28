@@ -7,11 +7,11 @@ public final class Reference<T> {
         this.t = t;
     }
 
-    public T getT() {
+    public T getValue() {
         return t;
     }
 
-    public void setT(T t) {
+    public void setValue(T t) {
         this.t = t;
     }
 }
