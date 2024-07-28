@@ -36,7 +36,7 @@ sealed interface Token {
 				"]" -> SeparatorToken.CLOSE_SQUARE_BRACKET
 				":" -> SeparatorToken.COLON
 				"," -> SeparatorToken.COMMA
-				else -> LiteralToken(value)
+				else -> IdentifierToken(value)
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 package com.harleylizard.language.parser
 
-import com.harleylizard.language.token.LiteralToken
+import com.harleylizard.language.token.IdentifierToken
 import com.harleylizard.language.token.Token
 
 sealed interface Parser {
@@ -12,8 +12,8 @@ sealed interface Parser {
 		return true
 	} ?: false
 
-	fun identifier() = token.takeIf { it is LiteralToken }?.let {
-		return (token as LiteralToken).value
+	fun identifier() = token.takeIf { it is IdentifierToken }?.let {
+		return (token as IdentifierToken).value
 	} ?: ""
 
 	fun skip() {

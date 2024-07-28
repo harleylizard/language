@@ -123,8 +123,8 @@ class Parser(private val tokens: Iterator<Token>) {
 	}
 
 	private fun nextLiteral(): String {
-		if (token is LiteralToken) {
-			val value = (token as LiteralToken).value
+		if (token is IdentifierToken) {
+			val value = (token as IdentifierToken).value
 			token = tokens.next()
 			return value
 		}
@@ -148,7 +148,7 @@ class Parser(private val tokens: Iterator<Token>) {
 			KeywordToken.LONG -> "J"
 			KeywordToken.FLOAT -> "F"
 			KeywordToken.DOUBLE -> "D"
-			is LiteralToken -> (token as LiteralToken).value
+			is IdentifierToken -> (token as IdentifierToken).value
 			else -> "V"
 		}
 		token = tokens.next()
