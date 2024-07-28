@@ -6,9 +6,12 @@ sealed interface Token {
 		@JvmStatic
 		fun get(value: String): Token {
 			return when (value) {
+				"import" -> KeywordToken.IMPORT
 				"class" -> KeywordToken.CLASS
 				"function" -> KeywordToken.FUNCTION
+				"override" -> KeywordToken.OVERRIDE
 				"var" -> KeywordToken.VARIABLE
+				"array" -> KeywordToken.ARRAY
 				"byte" -> KeywordToken.BYTE
 				"short" -> KeywordToken.SHORT
 				"int" -> KeywordToken.INT

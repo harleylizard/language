@@ -14,10 +14,17 @@ class Parser(private val tokens: Iterator<Token>) {
 			when (token) {
 				KeywordToken.FUNCTION -> tree += parseFunction()
 				KeywordToken.CLASS -> tree += parseClass()
+				KeywordToken.IMPORT -> tree += parseImport()
 				else -> token = tokens.next()
 			}
 		}
 		return Collections.unmodifiableList(tree)
+	}
+
+	private fun parseImport(): ImportTree {
+		next(KeywordToken.IMPORT)
+		val literal = nextLiteral()
+		return ImportTree(literal.substring(literal.lastIndexOf(".") + 1, literal.length), literal.replace(".", "/"))
 	}
 
 	private fun parseParameters(): List<ParameterTree> {
@@ -41,14 +48,14 @@ class Parser(private val tokens: Iterator<Token>) {
 		val parameters = parseParameters()
 		token = tokens.next()
 
-		var type = "void"
+		var type = "V"
 		if (nextArrow()) {
 			type = nextType()
 		}
 		next(SeparatorToken.OPEN_CURLY_BRACKET)
 		next(SeparatorToken.CLOSE_CURLY_BRACKET)
 
-		return FunctionTree(Opcodes.ACC_PUBLIC, name, parameters, type, ListTree(emptyList()))
+		return FunctionTree(Opcodes.ACC_PRIVATE, name, parameters, type, ListTree(emptyList()))
 	}
 
 	private fun parseClass(): ClassTree {
@@ -85,15 +92,23 @@ class Parser(private val tokens: Iterator<Token>) {
 	}
 
 	private fun nextType(): String {
+		if (token == KeywordToken.ARRAY) {
+			token = tokens.next()
+			next(OperatorToken.LESS_THAN)
+			val l = nextType()
+			print(l)
+			next(OperatorToken.GREATER_THAN)
+			return "[$l"
+		}
 		val klass = when (token) {
-			KeywordToken.BYTE -> "byte"
-			KeywordToken.SHORT -> "short"
-			KeywordToken.INT -> "int"
-			KeywordToken.LONG -> "long"
-			KeywordToken.FLOAT -> "float"
-			KeywordToken.DOUBLE -> "double"
+			KeywordToken.BYTE -> "B"
+			KeywordToken.SHORT -> "S"
+			KeywordToken.INT -> "I"
+			KeywordToken.LONG -> "J"
+			KeywordToken.FLOAT -> "F"
+			KeywordToken.DOUBLE -> "D"
 			is LiteralToken -> (token as LiteralToken).value
-			else -> "unknown"
+			else -> "V"
 		}
 		token = tokens.next()
 		return klass
