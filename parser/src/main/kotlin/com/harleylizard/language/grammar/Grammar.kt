@@ -15,7 +15,7 @@ class Grammar {
 		for (import in context.gatherImports(packageName)) {
 			map[import.first] = import.second
 		}
-		val asmify = Asmify(Collections.unmodifiableMap(map))
+		val asmify = Asmify(Collections.unmodifiableMap(map), context.gatherTemplates())
 		val parameters = mutableListOf<Tree>()
 		while (context.hasNext()) {
 			when (context.token) {
@@ -48,7 +48,7 @@ class Grammar {
 
 	private fun parameters(context: GrammarContext, asmify: Asmify): ListTree<MemberTree> {
 		val list = mutableListOf<MemberTree>()
-		while (!context.get(SeparatorToken.CLOSE_ROUND_BRACKET)) {
+		while (!context.checkIf(SeparatorToken.CLOSE_ROUND_BRACKET)) {
 			list += parameter(context, asmify)
 
 			context.optional(SeparatorToken.COMMA)
@@ -63,7 +63,7 @@ class Grammar {
 		context.expect(SeparatorToken.OPEN_CURLY_BRACKET)
 
 		val list = mutableListOf<Tree>()
-		while (!context.get(SeparatorToken.CLOSE_CURLY_BRACKET)) {
+		while (!context.checkIf(SeparatorToken.CLOSE_CURLY_BRACKET)) {
 			when {
 				context.token == KeywordToken.FUNCTION -> list += function(context, asmify)
 				else -> context.skip()
@@ -80,7 +80,7 @@ class Grammar {
 
 		val fields = mutableListOf<MemberTree>()
 		val operators = mutableListOf<FunctionTree>()
-		while (!context.get(SeparatorToken.CLOSE_CURLY_BRACKET)) {
+		while (!context.checkIf(SeparatorToken.CLOSE_CURLY_BRACKET)) {
 			when (context.token) {
 				is IdentifierToken -> {
 					fields += parameter(context, asmify)

@@ -2,6 +2,8 @@ package com.example
 
 import java.lang.String
 
+template T: number
+
 data Position {
     x: int
     y: int
@@ -17,5 +19,8 @@ data Position {
 class Example {
 
     function foo(i: array<Position>) -> int {
+    }
+
+    function bar(t: T) {
     }
 }

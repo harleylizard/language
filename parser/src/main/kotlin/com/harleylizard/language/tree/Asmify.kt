@@ -1,8 +1,11 @@
 package com.harleylizard.language.tree
 
+import com.harleylizard.language.Template
 import org.objectweb.asm.Opcodes
 
-class Asmify(private val map: Map<String, String>) {
+class Asmify(
+	private val map: Map<String, String>,
+	private val templates: Map<String, Template>) {
 
 	fun asDescriptor(type: String): String {
 		var mut = type
@@ -10,6 +13,18 @@ class Asmify(private val map: Map<String, String>) {
 		if (isArray) {
 			mut = mut.substring(1)
 		}
+		if (templates.containsKey(mut)) {
+			val template = templates[mut]!!
+			val generic = template.type
+			if (generic != null) {
+				if (template.isNumber) {
+					return "I"
+				}
+				return "L${asClass(generic)};"
+			}
+			return "Ljava/lang/Object;"
+ 		}
+
 		if (map.containsKey(mut)) {
 			val asm = "L${map[mut]};"
 			return "[$asm".takeIf { isArray } ?: asm

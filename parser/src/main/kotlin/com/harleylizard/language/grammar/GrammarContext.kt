@@ -1,5 +1,6 @@
 package com.harleylizard.language.grammar
 
+import com.harleylizard.language.Template
 import com.harleylizard.language.token.*
 import com.harleylizard.language.tree.Asmify
 import java.util.*
@@ -68,7 +69,7 @@ class GrammarContext(private val tokens: List<Token>) {
 
 	fun hasNext() = token != EOFToken
 
-	fun get(token: Token): Boolean {
+	fun checkIf(token: Token): Boolean {
 		return token.takeIf { this.token == it }?.let {
 			return true
 		} ?: false
@@ -101,5 +102,25 @@ class GrammarContext(private val tokens: List<Token>) {
 			}
 		}
 		return Collections.unmodifiableList(list)
+	}
+
+	fun gatherTemplates(): Map<String, Template> {
+		val map = mutableMapOf<String, Template>()
+		val context = GrammarContext(tokens)
+		while (context.hasNext()) {
+			if (context.checkIf(KeywordToken.TEMPLATE)) {
+				context.expect(KeywordToken.TEMPLATE)
+				val name = context.identifier()
+				var type: String? = null
+				if (context.checkIf(SeparatorToken.COLON)) {
+					context.expect(SeparatorToken.COLON)
+					type = context.identifier()
+				}
+				map[name] = Template(type)
+			} else {
+				context.skip()
+			}
+		}
+		return Collections.unmodifiableMap(map)
 	}
 }
