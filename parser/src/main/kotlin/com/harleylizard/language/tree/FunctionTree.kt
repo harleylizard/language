@@ -6,13 +6,13 @@ import org.objectweb.asm.tree.MethodNode
 class FunctionTree(
 	private val access: Int,
 	private val name: String,
-	private val parameters: List<ParameterTree>,
+	private val parameters: ListTree<ParameterTree>,
 	private val type: String,
-	private val body: ListTree) : Tree {
+	private val body: ListTree<Tree>) : Tree {
 
-	fun asmify(imports: Map<String, String>): MethodNode {
-		val descriptor = "${createParameters(imports)}$type"
-		val node = MethodNode(access, name, descriptor, null, null)
+	fun asmify(): MethodNode {
+		val params = "${createParams()}$type"
+		val node = MethodNode(access, name, params, null, null)
 		for (parameter in parameters) {
 			node.visitParameter(parameter.name, Opcodes.ACC_PUBLIC)
 		}
@@ -20,11 +20,11 @@ class FunctionTree(
 		return node
 	}
 
-	private fun createParameters(imports: Map<String, String>): String {
+	private fun createParams(): String {
 		val builder = StringBuilder()
 		builder.append("(")
 		for (parameter in parameters) {
-			builder.append(parameter.asmify(imports))
+			builder.append(parameter.type)
 		}
 		builder.append(")")
 		return builder.toString()

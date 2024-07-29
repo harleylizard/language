@@ -1,7 +1,7 @@
 package com.harleylizard.language.tree
 
 @JvmInline
-value class ListTree(private val list: List<Tree>) : Tree, Iterable<Tree> {
+value class ListTree<T : Tree>(private val list: List<T>) : Tree, Iterable<T> {
 
 	override fun iterator() = list.iterator()
 }
