@@ -1,3 +1,6 @@
 package com.harleylizard.language.token
 
-data object EOFToken : Token
+data object EOFToken : Token {
+	override val asString = "eof"
+
+}

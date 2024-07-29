@@ -1,8 +1,10 @@
 package com.harleylizard.language.token
 
 sealed interface Token {
+	val asString: String
 
 	companion object {
+
 		@JvmStatic
 		fun get(value: String): Token {
 			return when (value) {
@@ -16,12 +18,12 @@ sealed interface Token {
 				"override" -> KeywordToken.OVERRIDE
 				"var" -> KeywordToken.VARIABLE
 				"array" -> KeywordToken.ARRAY
-				"byte" -> KeywordToken.BYTE
-				"short" -> KeywordToken.SHORT
-				"int" -> KeywordToken.INT
-				"long" -> KeywordToken.LONG
-				"float" -> KeywordToken.FLOAT
-				"double" -> KeywordToken.DOUBLE
+				"byte" -> TypeToken.BYTE
+				"short" -> TypeToken.SHORT
+				"int" -> TypeToken.INT
+				"long" -> TypeToken.LONG
+				"float" -> TypeToken.FLOAT
+				"double" -> TypeToken.DOUBLE
 				"+" -> OperatorToken.ADD
 				"-" -> OperatorToken.MINUS
 				"*" -> OperatorToken.MULTIPLY

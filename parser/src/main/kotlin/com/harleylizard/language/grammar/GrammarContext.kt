@@ -1,9 +1,9 @@
 package com.harleylizard.language.grammar
 
-import com.harleylizard.language.Generic
+import com.harleylizard.language.old.Generic
 import com.harleylizard.language.token.*
-import com.harleylizard.language.tree.Asmify
-import com.harleylizard.language.tree.FunctionTree
+import com.harleylizard.language.old.Asmify
+import com.harleylizard.language.old.FunctionTree
 import java.util.*
 
 class GrammarContext(private val tokens: List<Token>) {
@@ -55,12 +55,12 @@ class GrammarContext(private val tokens: List<Token>) {
 			return "[$type"
 		}
 		val type = when (token) {
-			KeywordToken.BYTE -> "B"
-			KeywordToken.SHORT -> "S"
-			KeywordToken.INT -> "I"
-			KeywordToken.LONG -> "J"
-			KeywordToken.FLOAT -> "F"
-			KeywordToken.DOUBLE -> "D"
+			TypeToken.BYTE -> "B"
+			TypeToken.SHORT -> "S"
+			TypeToken.INT -> "I"
+			TypeToken.LONG -> "J"
+			TypeToken.FLOAT -> "F"
+			TypeToken.DOUBLE -> "D"
 			is IdentifierToken -> (token as IdentifierToken).value
 			else -> "V"
 		}

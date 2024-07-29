@@ -1,7 +1,7 @@
 package com.harleylizard.language.grammar
 
+import com.harleylizard.language.old.*
 import com.harleylizard.language.token.*
-import com.harleylizard.language.tree.*
 import org.objectweb.asm.Opcodes
 import java.util.*
 
@@ -130,7 +130,7 @@ class Grammar {
 		context.expect(KeywordToken.OPERATOR)
 		context.either(OperatorToken.ADD, OperatorToken.MINUS)
 		val token = context.token
-		val name = OperatorToken.overloadedName(token as OperatorToken)
+		val name = (token as OperatorToken).asString
 		context.skip()
 
 		context.expect(SeparatorToken.OPEN_ROUND_BRACKET)

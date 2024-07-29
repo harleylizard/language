@@ -1,14 +1,9 @@
-package com.harleylizard.language
+package com.harleylizard.language.token
 
-import com.harleylizard.language.token.EOFToken
-import com.harleylizard.language.token.Token
 import java.util.*
 
-object Lexer {
-	@JvmStatic
-	private val regex = Regex("([\\\\,{}()+&:\\-*/=<>])")
+class Lexer {
 
-	@JvmStatic
 	fun parse(source: String): List<Token> {
 		val tokens = mutableListOf<Token>()
 
@@ -19,5 +14,11 @@ object Lexer {
 		}
 		tokens.add(EOFToken)
 		return Collections.unmodifiableList(tokens)
+	}
+
+	private companion object {
+
+		@JvmStatic
+		private val regex = Regex("([\\\\,{}()+&:\\-*/=<>])")
 	}
 }

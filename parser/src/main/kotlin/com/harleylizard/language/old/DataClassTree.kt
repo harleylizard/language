@@ -1,4 +1,4 @@
-package com.harleylizard.language.tree
+package com.harleylizard.language.old
 
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
@@ -6,7 +6,8 @@ import org.objectweb.asm.tree.*
 class DataClassTree(
 	override val name: String,
 	private val fields: ListTree<MemberTree>,
-	private val operators: ListTree<FunctionTree>) : ClassTree {
+	private val operators: ListTree<FunctionTree>
+) : ClassTree {
 
 	override fun asmify(): ClassNode {
 		val node = ClassNode()

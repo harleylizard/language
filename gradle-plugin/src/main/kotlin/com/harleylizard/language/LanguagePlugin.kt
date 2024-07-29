@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 
 class LanguagePlugin : Plugin<Project> {
@@ -33,6 +34,9 @@ class LanguagePlugin : Plugin<Project> {
 
 		target.tasks.withType(JavaCompile::class.java) { compile ->
 			compile.dependsOn(compileTask)
+		}
+		target.tasks.withType(Jar::class.java) { jar ->
+			jar.from(compileTask.get().destinationDirectory)
 		}
 	}
 }

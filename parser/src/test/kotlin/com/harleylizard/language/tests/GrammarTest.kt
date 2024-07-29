@@ -1,16 +1,19 @@
 package com.harleylizard.language.tests
 
-import com.harleylizard.language.Lexer
-import com.harleylizard.language.grammar.Grammar
-import com.harleylizard.language.grammar.GrammarContext
+import com.harleylizard.language.token.Lexer
+import com.harleylizard.language.tree.Grammar
 import org.junit.jupiter.api.Test
 
 class GrammarTest {
 
 	@Test
 	fun test() {
-		val tokens = Lexer.parse(Resources.readString("test.language"))
+		val lexer = Lexer()
 		val grammar = Grammar()
-		grammar.parse(GrammarContext(tokens))
+
+		val tokens = lexer.parse(Resources.readString("test.language"))
+		val syntaxTree = grammar.parse(tokens)
+
+		println(syntaxTree.packageName)
 	}
 }

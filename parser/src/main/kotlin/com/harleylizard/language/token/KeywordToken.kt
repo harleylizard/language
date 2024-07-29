@@ -10,11 +10,9 @@ enum class KeywordToken : Token {
 	OPERATOR,
 	OVERRIDE,
 	VARIABLE,
-	ARRAY,
-	BYTE,
-	SHORT,
-	INT,
-	LONG,
-	FLOAT,
-	DOUBLE
+	ARRAY
+	;
+
+	override val asString: String
+		get() = throw IllegalArgumentException("shouldn't parse keywords as identifiers")
 }

@@ -1,4 +1,4 @@
-package com.harleylizard.language.tree
+package com.harleylizard.language.old
 
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.MethodNode
@@ -8,7 +8,8 @@ class FunctionTree(
 	val name: String,
 	val parameters: ListTree<MemberTree>,
 	val type: String,
-	val body: ListTree<Tree>) : Tree {
+	val body: ListTree<Tree>
+) : Tree {
 
 	fun asmify(): MethodNode {
 		val params = "${createParams()}$type"

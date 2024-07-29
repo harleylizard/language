@@ -1,22 +1,15 @@
 package com.harleylizard.language.token
 
-enum class OperatorToken : Token {
-	MINUS, ADD, DIVIDE, MULTIPLY, EQUALS, GREATER_THAN, LESS_THAN, BITWISE_AND;
+enum class OperatorToken(private val overloadName: String) : Token {
+	MINUS("minus"),
+	ADD("add"),
+	DIVIDE("divide"),
+	MULTIPLY("multiply"),
+	EQUALS("equals"),
+	GREATER_THAN("greaterThan"),
+	LESS_THAN("lessThan"),
+	BITWISE_AND("bitwiseAnd")
+	;
 
-	companion object {
-
-		@JvmStatic
-		fun overloadedName(token: OperatorToken): String {
-			return when (token) {
-				MINUS -> "minus"
-				ADD -> "add"
-				DIVIDE -> "divide"
-				MULTIPLY -> "multiply"
-				EQUALS -> "assign"
-				GREATER_THAN -> "greaterThan"
-				LESS_THAN -> "lessThan"
-				BITWISE_AND -> "bitwiseAnd"
-			}
-		}
-	}
+	override val asString: String get() = overloadName
 }

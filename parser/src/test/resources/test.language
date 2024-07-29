@@ -1,19 +1,11 @@
 package com.example
 
-import java.lang.String
-
-generic T: number
 
 data Position {
     x: int
     y: int
     z: int
 
-    operator +(position: Position) -> Position {
-    }
-
-    operator -(position: Position) -> Position {
-    }
 }
 
 class Example {
