@@ -3,7 +3,7 @@ package com.harleylizard.language.token
 enum class KeywordToken : Token {
 	PACKAGE,
 	IMPORT,
-	TEMPLATE,
+	GENERIC,
 	CLASS,
 	DATA,
 	FUNCTION,

@@ -4,11 +4,11 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.MethodNode
 
 class FunctionTree(
-	private val access: Int,
-	private val name: String,
-	private val parameters: ListTree<MemberTree>,
-	private val type: String,
-	private val body: ListTree<Tree>) : Tree {
+	val access: Int,
+	val name: String,
+	val parameters: ListTree<MemberTree>,
+	val type: String,
+	val body: ListTree<Tree>) : Tree {
 
 	fun asmify(): MethodNode {
 		val params = "${createParams()}$type"

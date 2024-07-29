@@ -1,11 +1,11 @@
 package com.harleylizard.language.tree
 
-import com.harleylizard.language.Template
+import com.harleylizard.language.Generic
 import org.objectweb.asm.Opcodes
 
 class Asmify(
 	private val map: Map<String, String>,
-	private val templates: Map<String, Template>) {
+	private val generics: Map<String, Generic>) {
 
 	fun asDescriptor(type: String): String {
 		var mut = type
@@ -13,14 +13,14 @@ class Asmify(
 		if (isArray) {
 			mut = mut.substring(1)
 		}
-		if (templates.containsKey(mut)) {
-			val template = templates[mut]!!
-			val generic = template.type
-			if (generic != null) {
-				if (template.isNumber) {
-					return "I"
+		if (generics.containsKey(mut)) {
+			val generic = generics[mut]!!
+			val genericType = generic.type
+			if (genericType != null) {
+				if (generic.isNumber) {
+					return "Ljava/lang/Number;"
 				}
-				return "L${asClass(generic)};"
+				return "L${asClass(genericType)};"
 			}
 			return "Ljava/lang/Object;"
  		}
@@ -52,6 +52,8 @@ class Asmify(
 	}
 
 	companion object {
+		val numbers = listOf("B", "S", "I", "J", "F", "D")
+
 		@JvmStatic
 		fun getReturnType(descriptor: String): Int {
 			return when (descriptor) {

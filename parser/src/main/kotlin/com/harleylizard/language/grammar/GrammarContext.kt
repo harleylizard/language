@@ -1,8 +1,9 @@
 package com.harleylizard.language.grammar
 
-import com.harleylizard.language.Template
+import com.harleylizard.language.Generic
 import com.harleylizard.language.token.*
 import com.harleylizard.language.tree.Asmify
+import com.harleylizard.language.tree.FunctionTree
 import java.util.*
 
 class GrammarContext(private val tokens: List<Token>) {
@@ -83,6 +84,15 @@ class GrammarContext(private val tokens: List<Token>) {
 		return false
 	}
 
+	fun hasNumber(function: FunctionTree): Boolean {
+		for (parameter in function.parameters) {
+			if (parameter.type.equals("Ljava/lang/Number;")) {
+				return true
+			}
+		}
+		return function.type.equals("Ljava/lang/Number;")
+	}
+
 	fun gatherImports(packageName: String): List<Pair<String, String>> {
 		val list = mutableListOf<Pair<String, String>>()
 		val context = GrammarContext(tokens)
@@ -104,19 +114,19 @@ class GrammarContext(private val tokens: List<Token>) {
 		return Collections.unmodifiableList(list)
 	}
 
-	fun gatherTemplates(): Map<String, Template> {
-		val map = mutableMapOf<String, Template>()
+	fun gatherGenerics(): Map<String, Generic> {
+		val map = mutableMapOf<String, Generic>()
 		val context = GrammarContext(tokens)
 		while (context.hasNext()) {
-			if (context.checkIf(KeywordToken.TEMPLATE)) {
-				context.expect(KeywordToken.TEMPLATE)
+			if (context.checkIf(KeywordToken.GENERIC)) {
+				context.expect(KeywordToken.GENERIC)
 				val name = context.identifier()
 				var type: String? = null
 				if (context.checkIf(SeparatorToken.COLON)) {
 					context.expect(SeparatorToken.COLON)
 					type = context.identifier()
 				}
-				map[name] = Template(type)
+				map[name] = Generic(type)
 			} else {
 				context.skip()
 			}

@@ -8,7 +8,7 @@ sealed interface Token {
 			return when (value) {
 				"package" -> KeywordToken.PACKAGE
 				"import" -> KeywordToken.IMPORT
-				"template" -> KeywordToken.TEMPLATE
+				"generic" -> KeywordToken.GENERIC
 				"class" -> KeywordToken.CLASS
 				"data" -> KeywordToken.DATA
 				"function" -> KeywordToken.FUNCTION

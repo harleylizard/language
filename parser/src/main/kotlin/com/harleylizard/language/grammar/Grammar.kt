@@ -15,17 +15,47 @@ class Grammar {
 		for (import in context.gatherImports(packageName)) {
 			map[import.first] = import.second
 		}
-		val asmify = Asmify(Collections.unmodifiableMap(map), context.gatherTemplates())
-		val parameters = mutableListOf<Tree>()
+		val asmify = Asmify(Collections.unmodifiableMap(map), context.gatherGenerics())
+		val body = mutableListOf<Tree>()
 		while (context.hasNext()) {
 			when (context.token) {
-				KeywordToken.FUNCTION -> parameters += function(context, asmify)
-				KeywordToken.CLASS -> parameters += objectClass(context, asmify)
-				KeywordToken.DATA -> parameters += dataClass(context, asmify)
+				KeywordToken.FUNCTION -> {
+					val function = function(context, asmify)
+					if (context.hasNumber(function)) {
+
+					} else {
+						body += function
+					}
+				}
+				KeywordToken.CLASS -> body += objectClass(context, asmify)
+				KeywordToken.DATA -> body += dataClass(context, asmify)
 				else -> context.skip()
 			}
 		}
-		return ListTree.unmodifiable(parameters)
+		return ListTree.unmodifiable(body)
+	}
+
+	private fun numberFunction(function: FunctionTree, context: GrammarContext, asmify: Asmify): List<FunctionTree> {
+		if (context.hasNumber(function)) {
+			val functions = mutableListOf<FunctionTree>()
+			for (number in Asmify.numbers) {
+				val parameters = mutableListOf<MemberTree>()
+				for (parameter in function.parameters) {
+					if (parameter.type.equals("Ljava/lang/Number;")) {
+						parameters += MemberTree(parameter.name, number)
+					}
+				}
+				functions += FunctionTree(
+					function.access,
+					function.name,
+					ListTree.unmodifiable(parameters),
+					function.type.replace("Ljava/lang/Number;", number),
+					function.body
+				)
+			}
+			return Collections.unmodifiableList(functions)
+		}
+		return listOf(function)
 	}
 
 	private fun function(context: GrammarContext, asmify: Asmify): FunctionTree {
@@ -65,7 +95,7 @@ class Grammar {
 		val list = mutableListOf<Tree>()
 		while (!context.checkIf(SeparatorToken.CLOSE_CURLY_BRACKET)) {
 			when {
-				context.token == KeywordToken.FUNCTION -> list += function(context, asmify)
+				context.token == KeywordToken.FUNCTION -> list += numberFunction(function(context, asmify), context, asmify)
 				else -> context.skip()
 			}
 		}
