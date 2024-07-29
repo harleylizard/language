@@ -1,0 +1,7 @@
+package com.harleylizard.examples
+
+data Vector3f {
+    x: float
+    y: float
+    z: float
+}

@@ -6,6 +6,10 @@ plugins {
 group = "com.harleylizard"
 version = "1.0-SNAPSHOT"
 
+dependencies {
+    api(project(":parser"))
+}
+
 gradlePlugin {
     plugins {
         val language by creating {
