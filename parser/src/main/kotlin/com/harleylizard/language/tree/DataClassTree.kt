@@ -3,7 +3,10 @@ package com.harleylizard.language.tree
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
 
-class DataClassTree(override val name: String, private val fields: ListTree<MemberTree>) : ClassTree {
+class DataClassTree(
+	override val name: String,
+	private val fields: ListTree<MemberTree>,
+	private val operators: ListTree<FunctionTree>) : ClassTree {
 
 	override fun asmify(): ClassNode {
 		val node = ClassNode()
@@ -41,6 +44,9 @@ class DataClassTree(override val name: String, private val fields: ListTree<Memb
 		methodNode.visitEnd()
 		methodNode.accept(node)
 
+		for (function in operators) {
+			function.asmify().accept(node)
+		}
 		node.visitEnd()
 		return node
 	}

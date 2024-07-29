@@ -17,6 +17,22 @@ class GrammarContext(private val tokens: List<Token>) {
 		this.token.takeIf { it == token }?.let { skip() } ?: throw RuntimeException("expected $token, got ${this.token}")
 	}
 
+	fun either(vararg tokens: Token) {
+		var result = false
+		for (token in tokens) {
+			if (this.token == token) {
+				result = true
+			}
+		}
+		if (!result) {
+			val builder = StringBuilder()
+			for (token in tokens) {
+				builder.append("$token ")
+			}
+			throw RuntimeException("expected one of $token" + "but got ${this.token}")
+		}
+	}
+
 	fun optional(token: Token) {
 		this.token.takeIf { it == token }?.let { skip() }
 	}

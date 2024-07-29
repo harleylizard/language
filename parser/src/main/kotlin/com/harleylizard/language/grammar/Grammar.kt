@@ -25,7 +25,7 @@ class Grammar {
 				else -> context.skip()
 			}
 		}
-		return ListTree(Collections.unmodifiableList(parameters))
+		return ListTree.unmodifiable(parameters)
 	}
 
 	private fun function(context: GrammarContext, asmify: Asmify): FunctionTree {
@@ -43,21 +43,18 @@ class Grammar {
 		context.expect(SeparatorToken.OPEN_CURLY_BRACKET)
 		context.expect(SeparatorToken.CLOSE_CURLY_BRACKET)
 
-		return FunctionTree(Opcodes.ACC_PRIVATE, name, parameters, type, ListTree(emptyList()))
+		return FunctionTree(Opcodes.ACC_PRIVATE, name, parameters, type, ListTree.empty())
 	}
 
 	private fun parameters(context: GrammarContext, asmify: Asmify): ListTree<MemberTree> {
 		val list = mutableListOf<MemberTree>()
 		while (!context.get(SeparatorToken.CLOSE_ROUND_BRACKET)) {
-			val name = context.identifier()
-			context.expect(SeparatorToken.COLON)
-			val type = context.type(asmify)
-			list += MemberTree(name, type)
+			list += parameter(context, asmify)
 
 			context.optional(SeparatorToken.COMMA)
 		}
 		context.skip()
-		return ListTree(Collections.unmodifiableList(list))
+		return ListTree.unmodifiable(list)
 	}
 
 	private fun objectClass(context: GrammarContext, asmify: Asmify): ObjectClassTree {
@@ -73,7 +70,7 @@ class Grammar {
 			}
 		}
 		context.skip()
-		return ObjectClassTree(name, ListTree(Collections.unmodifiableList(list)))
+		return ObjectClassTree(name, ListTree.unmodifiable(list))
 	}
 
 	private fun dataClass(context: GrammarContext, asmify: Asmify): DataClassTree {
@@ -82,13 +79,54 @@ class Grammar {
 		context.expect(SeparatorToken.OPEN_CURLY_BRACKET)
 
 		val fields = mutableListOf<MemberTree>()
+		val operators = mutableListOf<FunctionTree>()
 		while (!context.get(SeparatorToken.CLOSE_CURLY_BRACKET)) {
-			val name = context.identifier()
-			context.expect(SeparatorToken.COLON)
-			val type = context.type(asmify)
-			fields += MemberTree(name, type)
+			when (context.token) {
+				is IdentifierToken -> {
+					fields += parameter(context, asmify)
+				}
+				KeywordToken.OPERATOR -> {
+					operators += operatorFunction(context, asmify)
+				}
+				else -> context.skip()
+			}
+
 		}
 		context.skip()
-		return DataClassTree(className, ListTree(Collections.unmodifiableList(fields)))
+		return DataClassTree(className, ListTree.unmodifiable(fields), ListTree.unmodifiable(operators))
+	}
+
+	private fun operatorFunction(context: GrammarContext, asmify: Asmify): FunctionTree {
+		context.expect(KeywordToken.OPERATOR)
+		context.either(OperatorToken.ADD, OperatorToken.MINUS)
+		val token = context.token
+		val name = OperatorToken.overloadedName(token as OperatorToken)
+		context.skip()
+
+		context.expect(SeparatorToken.OPEN_ROUND_BRACKET)
+		val parameter = parameter(context, asmify)
+		context.expect(SeparatorToken.CLOSE_ROUND_BRACKET)
+
+		val type = type(context, asmify)
+		context.expect(SeparatorToken.OPEN_CURLY_BRACKET)
+		context.expect(SeparatorToken.CLOSE_CURLY_BRACKET)
+
+		return FunctionTree(Opcodes.ACC_PRIVATE, name, ListTree.singular(parameter), type, ListTree.empty())
+	}
+
+	private fun type(context: GrammarContext, asmify: Asmify): String {
+		var type = "V"
+		if (context.maybeIs(OperatorToken.MINUS)) {
+			context.expect(OperatorToken.GREATER_THAN)
+			type = context.type(asmify)
+		}
+		return type
+	}
+
+	private fun parameter(context: GrammarContext, asmify: Asmify): MemberTree {
+		val name = context.identifier()
+		context.expect(SeparatorToken.COLON)
+		val type = context.type(asmify)
+		return MemberTree(name, type)
 	}
 }

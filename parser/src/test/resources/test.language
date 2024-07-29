@@ -6,6 +6,12 @@ data Position {
     x: int
     y: int
     z: int
+
+    operator +(position: Position) -> Position {
+    }
+
+    operator -(position: Position) -> Position {
+    }
 }
 
 class Example {
