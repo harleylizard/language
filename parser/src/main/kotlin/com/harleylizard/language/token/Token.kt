@@ -21,7 +21,7 @@ sealed interface Token {
 				"float" -> KeywordToken.FLOAT
 				"double" -> KeywordToken.DOUBLE
 				"+" -> OperatorToken.ADD
-				"-" -> OperatorToken.SUBTRACT
+				"-" -> OperatorToken.MINUS
 				"*" -> OperatorToken.MULTIPLY
 				"/" -> OperatorToken.DIVIDE
 				"=" -> OperatorToken.EQUALS

@@ -1,7 +1,6 @@
 package com.harleylizard.language.grammar
 
-import com.harleylizard.language.token.KeywordToken
-import com.harleylizard.language.token.SeparatorToken
+import com.harleylizard.language.token.*
 import com.harleylizard.language.tree.*
 import org.objectweb.asm.Opcodes
 import java.util.*
@@ -17,15 +16,16 @@ class Grammar {
 			map[import.first] = import.second
 		}
 		val asmify = Asmify(Collections.unmodifiableMap(map))
-		val list = mutableListOf<Tree>()
+		val parameters = mutableListOf<Tree>()
 		while (context.hasNext()) {
 			when (context.token) {
-				KeywordToken.FUNCTION -> list += function(context, asmify)
-				KeywordToken.CLASS -> list += objectClass(context, asmify)
+				KeywordToken.FUNCTION -> parameters += function(context, asmify)
+				KeywordToken.CLASS -> parameters += objectClass(context, asmify)
+				KeywordToken.DATA -> parameters += dataClass(context, asmify)
 				else -> context.skip()
 			}
 		}
-		return ListTree(Collections.unmodifiableList(list))
+		return ListTree(Collections.unmodifiableList(parameters))
 	}
 
 	private fun function(context: GrammarContext, asmify: Asmify): FunctionTree {
@@ -35,19 +35,24 @@ class Grammar {
 		context.expect(SeparatorToken.OPEN_ROUND_BRACKET)
 		val parameters = parameters(context, asmify)
 
+		var type = "V"
+		if (context.maybeIs(OperatorToken.MINUS)) {
+			context.expect(OperatorToken.GREATER_THAN)
+			type = context.type(asmify)
+		}
 		context.expect(SeparatorToken.OPEN_CURLY_BRACKET)
 		context.expect(SeparatorToken.CLOSE_CURLY_BRACKET)
 
-		return FunctionTree(Opcodes.ACC_PRIVATE, name, parameters, "V", ListTree(emptyList()))
+		return FunctionTree(Opcodes.ACC_PRIVATE, name, parameters, type, ListTree(emptyList()))
 	}
 
-	private fun parameters(context: GrammarContext, asmify: Asmify): ListTree<ParameterTree> {
-		val list = mutableListOf<ParameterTree>()
+	private fun parameters(context: GrammarContext, asmify: Asmify): ListTree<MemberTree> {
+		val list = mutableListOf<MemberTree>()
 		while (!context.get(SeparatorToken.CLOSE_ROUND_BRACKET)) {
 			val name = context.identifier()
 			context.expect(SeparatorToken.COLON)
 			val type = context.type(asmify)
-			list += ParameterTree(name, type)
+			list += MemberTree(name, type)
 
 			context.optional(SeparatorToken.COMMA)
 		}
@@ -69,5 +74,21 @@ class Grammar {
 		}
 		context.skip()
 		return ObjectClassTree(name, ListTree(Collections.unmodifiableList(list)))
+	}
+
+	private fun dataClass(context: GrammarContext, asmify: Asmify): DataClassTree {
+		context.expect(KeywordToken.DATA)
+		val className = asmify.asClass(context.identifier())
+		context.expect(SeparatorToken.OPEN_CURLY_BRACKET)
+
+		val fields = mutableListOf<MemberTree>()
+		while (!context.get(SeparatorToken.CLOSE_CURLY_BRACKET)) {
+			val name = context.identifier()
+			context.expect(SeparatorToken.COLON)
+			val type = context.type(asmify)
+			fields += MemberTree(name, type)
+		}
+		context.skip()
+		return DataClassTree(className, ListTree(Collections.unmodifiableList(fields)))
 	}
 }

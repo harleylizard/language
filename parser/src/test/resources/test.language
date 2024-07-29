@@ -2,8 +2,14 @@ package com.example
 
 import java.lang.String
 
+data Position {
+    x: int
+    y: int
+    z: int
+}
+
 class Example {
 
-    function foo(i: array<int>) {
+    function foo(i: array<Position>) -> int {
     }
 }

@@ -3,24 +3,24 @@ package com.harleylizard.language.tree
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
 
-class DataTree(override val name: String, private val fields: List<ParameterTree>) : ClassTree {
+class DataClassTree(override val name: String, private val fields: ListTree<MemberTree>) : ClassTree {
 
 	override fun asmify(): ClassNode {
 		val node = ClassNode()
 		node.visit(Opcodes.V19, Opcodes.ACC_PUBLIC or Opcodes.ACC_FINAL, name, null, "java/lang/Object", null)
 
 		for (field in fields) {
-			val asmType = field.type
+			val type = field.type
 			val name = field.name
-			val fieldNode = FieldNode(Opcodes.ACC_PRIVATE or Opcodes.ACC_FINAL, name, asmType, null, null)
+			val fieldNode = FieldNode(Opcodes.ACC_PRIVATE or Opcodes.ACC_FINAL, name, type, null, null)
 			fieldNode.visitEnd()
 			fieldNode.accept(node)
 
-			val methodNode = MethodNode(Opcodes.ACC_PUBLIC, "get$${name}", "()$asmType", null, null)
+			val methodNode = MethodNode(Opcodes.ACC_PUBLIC, "get$${name}", "()$type", null, null)
 			methodNode.visitCode()
 			methodNode.visitVarInsn(Opcodes.ALOAD, 0)
-			methodNode.visitFieldInsn(Opcodes.GETFIELD, name, name, asmType)
-			methodNode.visitInsn(Asmify.getReturnType(asmType))
+			methodNode.visitFieldInsn(Opcodes.GETFIELD, name, name, type)
+			methodNode.visitInsn(Asmify.getReturnType(type))
 			methodNode.visitEnd()
 			methodNode.accept(node)
 		}
@@ -31,12 +31,11 @@ class DataTree(override val name: String, private val fields: List<ParameterTree
 		methodNode.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
 		for ((i, field) in fields.withIndex()) {
 			methodNode.visitParameter(field.name, Opcodes.ACC_PUBLIC)
-
 			methodNode.visitVarInsn(Opcodes.ALOAD, 0)
 
-			val asmType = field.type
-			methodNode.visitVarInsn(Asmify.getLoadType(asmType), i + 1)
-			methodNode.visitFieldInsn(Opcodes.PUTFIELD, name, field.name, asmType)
+			val type = field.type
+			methodNode.visitVarInsn(Asmify.getLoadType(type), i + 1)
+			methodNode.visitFieldInsn(Opcodes.PUTFIELD, name, field.name, type)
 		}
 		methodNode.visitInsn(Opcodes.RETURN)
 		methodNode.visitEnd()

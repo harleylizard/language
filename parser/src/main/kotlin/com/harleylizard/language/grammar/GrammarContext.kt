@@ -58,6 +58,14 @@ class GrammarContext(private val tokens: List<Token>) {
 		} ?: false
 	}
 
+	fun maybeIs(token: Token): Boolean {
+		if (this.token == token) {
+			skip()
+			return true
+		}
+		return false
+	}
+
 	fun gatherImports(packageName: String): List<Pair<String, String>> {
 		val list = mutableListOf<Pair<String, String>>()
 		val context = GrammarContext(tokens)
@@ -68,8 +76,8 @@ class GrammarContext(private val tokens: List<Token>) {
 					val name = context.identifier()
 					list += Pair(name.substring(name.lastIndexOf(".") + 1, name.length), name.replace(".", "/"))
 				}
-				KeywordToken.CLASS -> {
-					context.expect(KeywordToken.CLASS)
+				KeywordToken.CLASS, KeywordToken.DATA -> {
+					context.skip()
 					val name = context.identifier()
 					list += Pair(name, "$packageName/$name")
 				}

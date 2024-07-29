@@ -6,7 +6,7 @@ import org.objectweb.asm.tree.MethodNode
 class FunctionTree(
 	private val access: Int,
 	private val name: String,
-	private val parameters: ListTree<ParameterTree>,
+	private val parameters: ListTree<MemberTree>,
 	private val type: String,
 	private val body: ListTree<Tree>) : Tree {
 
