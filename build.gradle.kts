@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.0.0"
+    `java-library`
 }
 
 group = "com.harleylizard"
@@ -10,13 +11,14 @@ repositories {
 }
 
 subprojects {
+    apply(plugin = "java-library")
     apply(plugin = "kotlin")
 }
 
 allprojects {
     dependencies {
         testImplementation(kotlin("test"))
-        implementation("it.unimi.dsi:fastutil:8.5.13")
+        api("it.unimi.dsi:fastutil:8.5.13")
     }
 
     tasks.test {

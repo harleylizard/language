@@ -116,7 +116,7 @@ class Grammar {
 					fields += parameter(context, asmify)
 				}
 				KeywordToken.OPERATOR -> {
-					operators += operatorFunction(context, asmify)
+					operators += numberFunction(operatorFunction(context, asmify), context, asmify)
 				}
 				else -> context.skip()
 			}
