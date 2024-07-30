@@ -44,6 +44,28 @@ class Asmify private constructor(private val table: Table) {
 
 	fun meta(name: String) = table[name]!!
 
+	fun interfaces(supers: ListElement<SuperElement>): List<String> {
+		val interfaces = mutableListOf<String>()
+		for (supa in supers) {
+			val meta = meta(supa.name)
+			if (meta.isOf(InterfaceElement::class)) {
+				interfaces += meta.path
+			}
+		}
+		return Collections.unmodifiableList(interfaces)
+	}
+
+	fun traits(supers: ListElement<SuperElement>): List<String> {
+		val traits = mutableListOf<String>()
+		for (supa in supers) {
+			val meta = meta(supa.name)
+			if (meta.isOf(TraitElement::class)) {
+				traits += meta.path
+			}
+		}
+		return Collections.unmodifiableList(traits)
+	}
+
 	companion object {
 
 		@JvmStatic

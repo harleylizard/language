@@ -2,12 +2,14 @@ package com.example
 
 interface Animal {
 
-    function live()
+    function step()
 }
 
-trait Aquatic {
-
+trait Aquatic : Animal {
 }
 
-class Dog : Animal, Aquatic {
+trait Mammal : Animal {
+}
+
+class Dog : Animal, Aquatic, Mammal {
 }

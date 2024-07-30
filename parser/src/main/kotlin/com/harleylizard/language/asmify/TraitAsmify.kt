@@ -7,9 +7,10 @@ import org.objectweb.asm.tree.ClassNode
 class TraitAsmify(private val asmify: Asmify) {
 
 	fun asmify(trait: TraitElement): ClassNode {
+		val interfaces = asmify.interfaces(trait.supers)
 		val node = ClassNode()
 		val access = Opcodes.ACC_PUBLIC or Opcodes.ACC_FINAL
-		node.visit(Opcodes.V19, access, asmify.name(trait.name), null, "java/lang/Object", null)
+		node.visit(Opcodes.V19, access, asmify.name(trait.name), null, "java/lang/Object", interfaces.toTypedArray())
 
 		node.visitEnd()
 		return node
