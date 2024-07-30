@@ -16,6 +16,7 @@ class Grammar {
 				KeywordToken.INTERFACE -> classes += jnterface(iterator)
 				KeywordToken.CLASS -> classes += klass(iterator)
 				KeywordToken.DATA -> classes += data(iterator)
+				KeywordToken.TRAIT -> classes += trait(iterator)
 				else -> iterator.skip()
 			}
 		}
@@ -48,6 +49,7 @@ class Grammar {
 
 		while (!iterator.compare(SeparatorToken.CLOSE_ROUND_BRACKET)) {
 			parameters += variable(iterator)
+
 			iterator.maybeIs(SeparatorToken.COMMA)
 		}
 		iterator.skip()
@@ -57,6 +59,16 @@ class Grammar {
 		return InterfaceFunctionElement(name, type, ListElement.unmodifiable(parameters))
 	}
 
+	private fun trait(iterator: TokenIterator): TraitElement {
+		iterator.expect(KeywordToken.TRAIT)
+		val name = iterator.identifier()
+
+		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
+		iterator.expect(SeparatorToken.CLOSE_CURLY_BRACKET)
+
+		return TraitElement(name)
+	}
+
 	private fun klass(iterator: TokenIterator): JavaClassElement {
 		iterator.expect(KeywordToken.CLASS)
 		val name = iterator.identifier()
@@ -64,11 +76,16 @@ class Grammar {
 		val supers = mutableListOf<SuperElement>()
 		if (iterator.maybeIs(SeparatorToken.COLON)) {
 			while (!iterator.compare(SeparatorToken.OPEN_CURLY_BRACKET)) {
-				supers += supa(iterator)
-				iterator.maybeIs(SeparatorToken.COMMA)
+				supers += SuperElement(iterator.identifier())
+
+				if (iterator.token is IdentifierToken) {
+					iterator.skip()
+				}
+				if (iterator.compare(SeparatorToken.COMMA)) {
+					iterator.skip()
+				}
 			}
 		}
-
 		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
 		val functions = mutableListOf<FunctionElement>()
 
@@ -82,7 +99,6 @@ class Grammar {
 		return JavaClassElement(name, ListElement.unmodifiable(supers), ListElement.unmodifiable(functions))
 	}
 
-	private fun supa(iterator: TokenIterator) = SuperElement(iterator.identifier())
 
 	private fun function(iterator: TokenIterator): FunctionElement {
 		iterator.expect(KeywordToken.FUNCTION)

@@ -14,6 +14,7 @@ sealed interface Token {
 				"class" -> KeywordToken.CLASS
 				"data" -> KeywordToken.DATA
 				"interface" -> KeywordToken.INTERFACE
+				"trait" -> KeywordToken.TRAIT
 				"function" -> KeywordToken.FUNCTION
 				"operator" -> KeywordToken.OPERATOR
 				"override" -> KeywordToken.OVERRIDE

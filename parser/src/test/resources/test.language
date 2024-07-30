@@ -5,5 +5,9 @@ interface Animal {
     function live()
 }
 
-class Dog : Animal {
+trait Aquatic {
+
+}
+
+class Dog : Animal, Aquatic {
 }

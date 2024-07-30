@@ -5,15 +5,7 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 import java.util.*
 
-data class Meta(
-	val path: String,
-	val jnterface: Boolean,
-	val subPaths: List<String>
-)
-
-class Asmify private constructor(
-	private val table: Map<String, Meta>
-) {
+class Asmify private constructor(private val table: Table) {
 
 	fun asmify(klass: ClassElement): ClassNode {
 		if (klass is DataElement) {
@@ -24,6 +16,9 @@ class Asmify private constructor(
 		}
 		if (klass is InterfaceElement) {
 			return InterfaceAsmify(this).asmify(klass)
+		}
+		if (klass is TraitElement) {
+			return TraitAsmify(this).asmify(klass)
 		}
 		throw RuntimeException("illegal class")
 	}
@@ -53,13 +48,12 @@ class Asmify private constructor(
 
 		@JvmStatic
 		fun create(syntaxTree: SyntaxTree): Asmify {
-			val map = mutableMapOf<String, Meta>()
+			val map = mutableMapOf<String, ClassMeta<*>>()
 
 			for (clazz in syntaxTree.classes) {
 				val path = "${syntaxTree.packageName.replace(".", "/")}/${clazz.name}"
-				val jnterface = clazz is InterfaceElement
 
-				map[clazz.name] = Meta(path, jnterface, emptyList())
+				map[clazz.name] = ClassMeta(path, clazz::class, emptyList())
 			}
 			return Asmify(Collections.unmodifiableMap(map))
 		}

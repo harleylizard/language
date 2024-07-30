@@ -7,6 +7,7 @@ enum class KeywordToken : Token {
 	CLASS,
 	DATA,
 	INTERFACE,
+	TRAIT,
 	FUNCTION,
 	OPERATOR,
 	OVERRIDE,
