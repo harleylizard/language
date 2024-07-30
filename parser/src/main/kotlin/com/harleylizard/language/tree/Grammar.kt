@@ -10,20 +10,64 @@ class Grammar {
 		iterator.expect(KeywordToken.PACKAGE)
 		val packageName = iterator.identifier()
 
-		val classes = mutableListOf<IClassElement>()
+		val classes = mutableListOf<ClassElement>()
 		while (iterator.hasNext) {
 			when (iterator.token) {
-				KeywordToken.CLASS -> classes += customClass(iterator)
-				KeywordToken.DATA -> classes += dataClass(iterator)
+				KeywordToken.INTERFACE -> classes += jnterface(iterator)
+				KeywordToken.CLASS -> classes += klass(iterator)
+				KeywordToken.DATA -> classes += data(iterator)
 				else -> iterator.skip()
 			}
 		}
 		return SyntaxTree(packageName, emptyMap(), emptyMap(), ListElement.unmodifiable(classes))
 	}
 
-	private fun customClass(iterator: TokenIterator): ClassElement {
+	private fun jnterface(iterator: TokenIterator): InterfaceElement {
+		iterator.expect(KeywordToken.INTERFACE)
+		val name = iterator.identifier()
+
+		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
+		val functions = mutableListOf<InterfaceFunctionElement>()
+
+		while (!iterator.compare(SeparatorToken.CLOSE_CURLY_BRACKET)) {
+			when (iterator.token) {
+				KeywordToken.FUNCTION -> functions += interfaceFunction(iterator)
+				else -> iterator.skip()
+			}
+		}
+		iterator.skip()
+		return InterfaceElement(name, ListElement.unmodifiable(functions))
+	}
+
+	private fun interfaceFunction(iterator: TokenIterator): InterfaceFunctionElement {
+		iterator.expect(KeywordToken.FUNCTION)
+		val name = iterator.identifier()
+
+		iterator.expect(SeparatorToken.OPEN_ROUND_BRACKET)
+		val parameters = mutableListOf<VariableElement>()
+
+		while (!iterator.compare(SeparatorToken.CLOSE_ROUND_BRACKET)) {
+			parameters += variable(iterator)
+			iterator.maybeIs(SeparatorToken.COMMA)
+		}
+		iterator.skip()
+
+		val type = returnType(iterator)
+
+		return InterfaceFunctionElement(name, type, ListElement.unmodifiable(parameters))
+	}
+
+	private fun klass(iterator: TokenIterator): JavaClassElement {
 		iterator.expect(KeywordToken.CLASS)
 		val name = iterator.identifier()
+
+		val supers = mutableListOf<SuperElement>()
+		if (iterator.maybeIs(SeparatorToken.COLON)) {
+			while (!iterator.compare(SeparatorToken.OPEN_CURLY_BRACKET)) {
+				supers += supa(iterator)
+				iterator.maybeIs(SeparatorToken.COMMA)
+			}
+		}
 
 		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
 		val functions = mutableListOf<FunctionElement>()
@@ -35,8 +79,10 @@ class Grammar {
 			}
 		}
 		iterator.skip()
-		return ClassElement(name, ListElement.unmodifiable(functions))
+		return JavaClassElement(name, ListElement.unmodifiable(supers), ListElement.unmodifiable(functions))
 	}
+
+	private fun supa(iterator: TokenIterator) = SuperElement(iterator.identifier())
 
 	private fun function(iterator: TokenIterator): FunctionElement {
 		iterator.expect(KeywordToken.FUNCTION)
@@ -58,7 +104,7 @@ class Grammar {
 		return FunctionElement(name, type, ListElement.unmodifiable(parameters))
 	}
 
-	private fun dataClass(iterator: TokenIterator): DataClassElement {
+	private fun data(iterator: TokenIterator): DataElement {
 		iterator.expect(KeywordToken.DATA)
 		val name = iterator.identifier()
 
@@ -74,7 +120,7 @@ class Grammar {
 			}
 		}
 		iterator.skip()
-		return DataClassElement(name, ListElement.unmodifiable(fields), ListElement.unmodifiable(operators))
+		return DataElement(name, ListElement.unmodifiable(fields), ListElement.unmodifiable(operators))
 	}
 
 	private fun operatorFunction(iterator: TokenIterator): FunctionElement {

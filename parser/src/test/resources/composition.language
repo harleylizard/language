@@ -1,0 +1,109 @@
+package com.example
+
+interface Animal {
+    function live()
+}
+
+trait Aquatic : Animal {
+
+    @Override
+    function live() {
+        swim()
+    }
+
+    function swim() {
+    }
+}
+
+class Dog : Animal {
+
+    @Override
+    function live() {
+        bark()
+    }
+
+    function bark() {
+    }
+}
+
+class Cat : Animal {
+
+    @Override
+    function live() {
+        pur()
+    }
+
+    function pur() {
+    }
+}
+
+class Dolphin : Animal, Aquatic {
+
+    @Override
+    function live() {
+        swim()
+        laugh()
+    }
+
+    function laugh() {
+    }
+}
+
+
+// java equivalents
+public sealed interface Animal permits Aquatic, Dog, Cat {
+}
+
+// Trait class
+public final class Aquatic implements Animal {
+
+    private Aquatic() {
+    }
+
+    @Override
+    public void live() {
+        swim();
+    }
+
+    public void swim() {
+    }
+
+    public static Aquatic composition(Dolphin dolphin) {
+        return new Aquatic()
+    }
+}
+
+public final class Dog implements Animal {
+
+    @Override
+    public void live() {
+        bark();
+    }
+
+    public void bark() {
+    }
+}
+
+public final class Cat implements Animal {
+
+    @Override
+    public void live() {
+        pur();
+    }
+
+    public void pur() {
+    }
+}
+
+public final class Dolphin implements Animal {
+    private final Aquatic aquatic = Aquatic.composition(this);
+
+    @Override
+    public void live() {
+        aquatic.swim()
+        laugh();
+    }
+
+    public void laugh() {
+    }
+}

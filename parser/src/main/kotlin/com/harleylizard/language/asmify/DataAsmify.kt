@@ -2,13 +2,13 @@ package com.harleylizard.language.asmify
 
 import com.harleylizard.language.asmify.Asmify.Companion.getLoadType
 import com.harleylizard.language.asmify.Asmify.Companion.getReturnType
-import com.harleylizard.language.tree.DataClassElement
+import com.harleylizard.language.tree.DataElement
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.*
 
-class DataClassAsmify(private val asmify: Asmify) {
+class DataAsmify(private val asmify: Asmify) {
 
-	fun asmify(data: DataClassElement): ClassNode {
+	fun asmify(data: DataElement): ClassNode {
 		val name = asmify.name(data.name)
 		val node = ClassNode()
 		node.visit(Opcodes.V19, Opcodes.ACC_PUBLIC or Opcodes.ACC_FINAL, name, null, "java/lang/Object", null)

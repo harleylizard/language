@@ -6,6 +6,7 @@ enum class KeywordToken : Token {
 	GENERIC,
 	CLASS,
 	DATA,
+	INTERFACE,
 	FUNCTION,
 	OPERATOR,
 	OVERRIDE,

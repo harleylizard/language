@@ -13,6 +13,7 @@ sealed interface Token {
 				"generic" -> KeywordToken.GENERIC
 				"class" -> KeywordToken.CLASS
 				"data" -> KeywordToken.DATA
+				"interface" -> KeywordToken.INTERFACE
 				"function" -> KeywordToken.FUNCTION
 				"operator" -> KeywordToken.OPERATOR
 				"override" -> KeywordToken.OVERRIDE

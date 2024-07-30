@@ -1,10 +1,7 @@
 package com.harleylizard.language
 
-import com.harleylizard.language.grammar.Grammar
-import com.harleylizard.language.grammar.GrammarContext
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.compile.AbstractCompile
-import org.objectweb.asm.ClassWriter
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -15,15 +12,12 @@ open class LanguageCompileTask : AbstractCompile() {
 	fun compileLanguage() {
 		source.files.forEach { file ->
 			// val tokens = Lexer.parse(readString(file))
-//
 			// val context = GrammarContext(tokens)
 			// val list = Grammar().parse(context)
-//
 			// for (entry in list) {
 			// 	if (entry is ClassTree) {
 			// 		val bytes = writeClass(entry)
 			// 		writeBytes(entry.name, bytes)
-//
 			// 	}
 			// }
 		}
@@ -41,11 +35,11 @@ open class LanguageCompileTask : AbstractCompile() {
 		}
 	}
 
-	private fun writeClass(classTree: ClassTree): ByteArray {
-		val cw = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
-		classTree.asmify().accept(cw)
-		return cw.toByteArray()
-	}
+	// private fun writeClass(classTree: ClassTree): ByteArray {
+	// 	val cw = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
+	// 	classTree.asmify().accept(cw)
+	// 	return cw.toByteArray()
+	// }
 
 	private fun readString(file: File): String {
 		BufferedReader(InputStreamReader(file.inputStream())).use { reader ->

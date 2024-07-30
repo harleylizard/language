@@ -1,16 +1,9 @@
 package com.example
 
-data Position {
-    x: int
-    y: int
-    z: int
+interface Animal {
 
-    operator +(x: int) {
-    }
+    function live()
 }
 
-class Example {
-
-    function foo(t: int) {
-    }
+class Dog : Animal {
 }

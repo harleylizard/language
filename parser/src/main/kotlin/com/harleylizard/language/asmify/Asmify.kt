@@ -5,14 +5,25 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 import java.util.*
 
-class Asmify private constructor(private val table: Map<String, String>) {
+data class Meta(
+	val path: String,
+	val jnterface: Boolean,
+	val subPaths: List<String>
+)
 
-	fun asmify(clazz: IClassElement): ClassNode {
-		if (clazz is DataClassElement) {
-			return DataClassAsmify(this).asmify(clazz)
+class Asmify private constructor(
+	private val table: Map<String, Meta>
+) {
+
+	fun asmify(klass: ClassElement): ClassNode {
+		if (klass is DataElement) {
+			return DataAsmify(this).asmify(klass)
 		}
-		if (clazz is ClassElement) {
-			return ClassAsmify(this).asmify(clazz)
+		if (klass is JavaClassElement) {
+			return JavaClassAsmify(this).asmify(klass)
+		}
+		if (klass is InterfaceElement) {
+			return InterfaceAsmify(this).asmify(klass)
 		}
 		throw RuntimeException("illegal class")
 	}
@@ -34,16 +45,21 @@ class Asmify private constructor(private val table: Map<String, String>) {
 		return if (isArray) "[$j" else j
 	}
 
-	fun name(name: String) = table[name] ?: name
+	fun name(name: String) = table[name]?.path ?: name
+
+	fun meta(name: String) = table[name]!!
 
 	companion object {
 
 		@JvmStatic
 		fun create(syntaxTree: SyntaxTree): Asmify {
-			val map = mutableMapOf<String, String>()
+			val map = mutableMapOf<String, Meta>()
 
 			for (clazz in syntaxTree.classes) {
-				map[clazz.name] = "${syntaxTree.packageName.replace(".", "/")}/${clazz.name}"
+				val path = "${syntaxTree.packageName.replace(".", "/")}/${clazz.name}"
+				val jnterface = clazz is InterfaceElement
+
+				map[clazz.name] = Meta(path, jnterface, emptyList())
 			}
 			return Asmify(Collections.unmodifiableMap(map))
 		}
