@@ -2,7 +2,6 @@ package com.harleylizard.language
 
 import com.harleylizard.language.grammar.Grammar
 import com.harleylizard.language.grammar.GrammarContext
-import com.harleylizard.language.old.ClassTree
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.objectweb.asm.ClassWriter
@@ -15,18 +14,18 @@ open class LanguageCompileTask : AbstractCompile() {
 	@TaskAction
 	fun compileLanguage() {
 		source.files.forEach { file ->
-			val tokens = Lexer.parse(readString(file))
-
-			val context = GrammarContext(tokens)
-			val list = Grammar().parse(context)
-
-			for (entry in list) {
-				if (entry is ClassTree) {
-					val bytes = writeClass(entry)
-					writeBytes(entry.name, bytes)
-
-				}
-			}
+			// val tokens = Lexer.parse(readString(file))
+//
+			// val context = GrammarContext(tokens)
+			// val list = Grammar().parse(context)
+//
+			// for (entry in list) {
+			// 	if (entry is ClassTree) {
+			// 		val bytes = writeClass(entry)
+			// 		writeBytes(entry.name, bytes)
+//
+			// 	}
+			// }
 		}
 	}
 

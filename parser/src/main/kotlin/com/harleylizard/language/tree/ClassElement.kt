@@ -1,3 +1,6 @@
 package com.harleylizard.language.tree
 
-interface ClassElement : Element
+data class ClassElement(
+	override val name: String,
+	val functions: ListElement<FunctionElement>
+) : IClassElement

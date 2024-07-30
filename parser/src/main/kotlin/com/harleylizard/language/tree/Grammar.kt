@@ -10,10 +10,10 @@ class Grammar {
 		iterator.expect(KeywordToken.PACKAGE)
 		val packageName = iterator.identifier()
 
-		val classes = mutableListOf<ClassElement>()
+		val classes = mutableListOf<IClassElement>()
 		while (iterator.hasNext) {
 			when (iterator.token) {
-				KeywordToken.CLASS -> classes += regularClass(iterator)
+				KeywordToken.CLASS -> classes += customClass(iterator)
 				KeywordToken.DATA -> classes += dataClass(iterator)
 				else -> iterator.skip()
 			}
@@ -21,7 +21,7 @@ class Grammar {
 		return SyntaxTree(packageName, emptyMap(), emptyMap(), ListElement.unmodifiable(classes))
 	}
 
-	private fun regularClass(iterator: TokenIterator): RegularClassElement {
+	private fun customClass(iterator: TokenIterator): ClassElement {
 		iterator.expect(KeywordToken.CLASS)
 		val name = iterator.identifier()
 
@@ -35,7 +35,7 @@ class Grammar {
 			}
 		}
 		iterator.skip()
-		return RegularClassElement(name, ListElement.unmodifiable(functions))
+		return ClassElement(name, ListElement.unmodifiable(functions))
 	}
 
 	private fun function(iterator: TokenIterator): FunctionElement {
@@ -116,6 +116,12 @@ class Grammar {
 	}
 
 	private fun type(iterator: TokenIterator): String {
+		if (iterator.maybeIs(KeywordToken.ARRAY)) {
+			iterator.expect(OperatorToken.LESS_THAN)
+			val type = type(iterator)
+			iterator.expect(OperatorToken.GREATER_THAN)
+			return "[$type"
+		}
 		val type = iterator.token.asString
 		iterator.skip()
 		return type;
