@@ -63,11 +63,14 @@ class Grammar {
 		iterator.expect(KeywordToken.TRAIT)
 		val name = iterator.identifier()
 
-		val supers = supers(iterator)
+		var type: String? = null
+		if (iterator.maybeIs(SeparatorToken.COLON)) {
+			type = iterator.identifier()
+		}
 		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
 		iterator.expect(SeparatorToken.CLOSE_CURLY_BRACKET)
 
-		return TraitElement(name, supers)
+		return TraitElement(name, type)
 	}
 
 	private fun klass(iterator: TokenIterator): JavaClassElement {

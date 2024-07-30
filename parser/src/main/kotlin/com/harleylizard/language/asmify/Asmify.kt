@@ -4,8 +4,9 @@ import com.harleylizard.language.tree.*
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 import java.util.*
+import kotlin.reflect.KClass
 
-class Asmify private constructor(private val table: Table) {
+class Asmify private constructor(private val table: Table<*>) {
 
 	fun asmify(klass: ClassElement): ClassNode {
 		if (klass is DataElement) {
@@ -35,32 +36,38 @@ class Asmify private constructor(private val table: Table) {
 			"int" -> "I"
 			"long" -> "J"
 			"float" -> "F"
-			else -> "L${name(l)};"
+			else -> "L${qualifier(l)};"
 		}
 		return if (isArray) "[$j" else j
 	}
 
-	fun name(name: String) = table[name]?.path ?: name
+	fun qualifier(name: String) = table[name]?.qualifier ?: name
 
-	fun meta(name: String) = table[name]!!
+	private fun <T : ClassElement> info(name: String, klass: KClass<T>): ClassInfo<T>? {
+		val info = table[name]
+		if (info != null && info.element::class == klass) {
+			return info as ClassInfo<T>
+		}
+		return null
+	}
 
-	fun interfaces(supers: ListElement<SuperElement>): List<String> {
-		val interfaces = mutableListOf<String>()
-		for (supa in supers) {
-			val meta = meta(supa.name)
-			if (meta.isOf(InterfaceElement::class)) {
-				interfaces += meta.path
+	fun interfaces(supers: ListElement<SuperElement>): List<ClassInfo<InterfaceElement>> {
+		val interfaces = mutableListOf<ClassInfo<InterfaceElement>>()
+		for (supar in supers) {
+			val info = info(supar.name, InterfaceElement::class)
+			if (info != null) {
+				interfaces += info
 			}
 		}
 		return Collections.unmodifiableList(interfaces)
 	}
 
-	fun traits(supers: ListElement<SuperElement>): List<String> {
-		val traits = mutableListOf<String>()
-		for (supa in supers) {
-			val meta = meta(supa.name)
-			if (meta.isOf(TraitElement::class)) {
-				traits += meta.path
+	fun traits(supers: ListElement<SuperElement>): List<ClassInfo<TraitElement>> {
+		val traits = mutableListOf<ClassInfo<TraitElement>>()
+		for (supar in supers) {
+			val info = info(supar.name, TraitElement::class)
+			if (info != null) {
+				traits += info
 			}
 		}
 		return Collections.unmodifiableList(traits)
@@ -70,12 +77,13 @@ class Asmify private constructor(private val table: Table) {
 
 		@JvmStatic
 		fun create(syntaxTree: SyntaxTree): Asmify {
-			val map = mutableMapOf<String, ClassMeta<*>>()
+			val map = mutableMapOf<String, ClassInfo<*>>()
 
-			for (clazz in syntaxTree.classes) {
-				val path = "${syntaxTree.packageName.replace(".", "/")}/${clazz.name}"
+			for (klass in syntaxTree.classes) {
+				val name = klass.name
+				val qualifier = "${syntaxTree.packageName.replace(".", "/")}/$name"
 
-				map[clazz.name] = ClassMeta(path, clazz::class, emptyList())
+				map[name] = ClassInfo(name, qualifier, emptyList(), klass)
 			}
 			return Asmify(Collections.unmodifiableMap(map))
 		}

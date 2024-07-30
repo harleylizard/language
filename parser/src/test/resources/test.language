@@ -1,15 +1,16 @@
 package com.example
 
-interface Animal {
-
-    function step()
+interface Entity {
 }
 
-trait Aquatic : Animal {
+interface Living {
 }
 
-trait Mammal : Animal {
+trait Flammable : Living {
 }
 
-class Dog : Animal, Aquatic, Mammal {
+class Pig : Living {
+}
+
+class Zombie : Living, Flammable {
 }

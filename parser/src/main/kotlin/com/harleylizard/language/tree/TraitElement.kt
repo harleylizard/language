@@ -2,5 +2,5 @@ package com.harleylizard.language.tree
 
 data class TraitElement(
 	override val name: String,
-	val supers: ListElement<SuperElement>
+	val type: String?
 ) : ClassElement {}
