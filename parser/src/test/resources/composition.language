@@ -1,109 +1,45 @@
 package com.example
 
-interface Animal {
-    function live()
-}
+// Inheritance
+interface Entity {
+    burnTime: float
 
-trait Aquatic : Animal {
+    function tick(world: World)
 
-    @Override
-    function live() {
-        swim()
-    }
-
-    function swim() {
+    function burn(time: float) {
+        burnTime = time
     }
 }
 
-class Dog : Animal {
+// Composition
+trait Flammable : Entity {
 
-    @Override
-    function live() {
-        bark()
-    }
-
-    function bark() {
-    }
-}
-
-class Cat : Animal {
-
-    @Override
-    function live() {
-        pur()
-    }
-
-    function pur() {
+    function burnInSun(world: World) {
+        if (world.isDay()) {
+            burn(1.0F)
+        }
     }
 }
 
-class Dolphin : Animal, Aquatic {
+trait Enemy : Entity {
 
-    @Override
-    function live() {
-        swim()
-        laugh()
-    }
-
-    function laugh() {
+    function despawn(world: World) {
+        if (world.isPeaceful) {
+            world.remove(this)
+        }
     }
 }
 
+class Pig : Entity {
 
-// java equivalents
-public sealed interface Animal permits Aquatic, Dog, Cat {
-}
-
-// Trait class
-public final class Aquatic implements Animal {
-
-    private Aquatic() {
-    }
-
-    @Override
-    public void live() {
-        swim();
-    }
-
-    public void swim() {
-    }
-
-    public static Aquatic composition(Dolphin dolphin) {
-        return new Aquatic()
+    override function tick(world: World) {
     }
 }
 
-public final class Dog implements Animal {
+class Zombie : Entity, Flammable, Enemy {
 
-    @Override
-    public void live() {
-        bark();
-    }
-
-    public void bark() {
-    }
-}
-
-public final class Cat implements Animal {
-
-    @Override
-    public void live() {
-        pur();
-    }
-
-    public void pur() {
-    }
-}
-
-public final class Dolphin implements Animal {
-    private final Aquatic aquatic = Aquatic.composition(this);
-
-    @Override
-    public void live() {
-        aquatic.swim()
-        laugh();
-    }
-
-    public void laugh() {
+    override function tick(world: World) {
+        burnInSun(world)
+        despawn(world)
     }
 }

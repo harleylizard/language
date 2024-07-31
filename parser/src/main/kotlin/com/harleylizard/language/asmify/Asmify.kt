@@ -1,27 +1,16 @@
 package com.harleylizard.language.asmify
 
 import com.harleylizard.language.tree.*
+import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 import java.util.*
 import kotlin.reflect.KClass
 
-class Asmify private constructor(private val table: Table<*>) {
+class Asmify private constructor(private val cw: ClassWriter, private val table: Table<Element>) {
 
-	fun asmify(klass: ClassElement): ClassNode {
-		if (klass is DataElement) {
-			return DataAsmify(this).asmify(klass)
-		}
-		if (klass is JavaClassElement) {
-			return JavaClassAsmify(this).asmify(klass)
-		}
-		if (klass is InterfaceElement) {
-			return InterfaceAsmify(this).asmify(klass)
-		}
-		if (klass is TraitElement) {
-			return TraitAsmify(this).asmify(klass)
-		}
-		throw RuntimeException("illegal class")
+	fun accept(node: ClassNode) {
+		node.accept(cw)
 	}
 
 	fun descriptor(type: String): String {
@@ -41,55 +30,41 @@ class Asmify private constructor(private val table: Table<*>) {
 		return if (isArray) "[$j" else j
 	}
 
-	fun qualifier(name: String) = table[name]?.qualifier ?: name
-
-	private fun <T : ClassElement> info(name: String, klass: KClass<T>): ClassInfo<T>? {
-		val info = table[name]
-		if (info != null && info.element::class == klass) {
-			return info as ClassInfo<T>
-		}
-		return null
-	}
-
-	fun interfaces(supers: ListElement<SuperElement>): List<ClassInfo<InterfaceElement>> {
-		val interfaces = mutableListOf<ClassInfo<InterfaceElement>>()
+	fun interfaces(supers: ListElement<SuperElement>): List<Reference<InterfaceElement>> {
+		val interfaces = mutableListOf<Reference<InterfaceElement>>()
 		for (supar in supers) {
-			val info = info(supar.name, InterfaceElement::class)
-			if (info != null) {
-				interfaces += info
+			val reference = reference(supar.name, InterfaceElement::class)
+			if (reference != null) {
+				interfaces += reference
 			}
 		}
 		return Collections.unmodifiableList(interfaces)
 	}
 
-	fun traits(supers: ListElement<SuperElement>): List<ClassInfo<TraitElement>> {
-		val traits = mutableListOf<ClassInfo<TraitElement>>()
+	fun traits(supers: ListElement<SuperElement>): List<Reference<TraitElement>> {
+		val traits = mutableListOf<Reference<TraitElement>>()
 		for (supar in supers) {
-			val info = info(supar.name, TraitElement::class)
-			if (info != null) {
-				traits += info
+			val reference = reference(supar.name, TraitElement::class)
+			if (reference != null) {
+				traits += reference
 			}
 		}
 		return Collections.unmodifiableList(traits)
 	}
 
+	fun qualifier(name: String) = table.qualifier(name)
+
+	private fun <T : Element> reference(name: String, klass: KClass<T>): Reference<T>? = table.reference(name, klass)
+
 	companion object {
 
 		@JvmStatic
-		fun create(syntaxTree: SyntaxTree): Asmify {
-			val map = mutableMapOf<String, ClassInfo<*>>()
-
-			for (klass in syntaxTree.classes) {
-				val name = klass.name
-				val qualifier = "${syntaxTree.packageName.replace(".", "/")}/$name"
-
-				map[name] = ClassInfo(name, qualifier, emptyList(), klass)
-			}
-			return Asmify(Collections.unmodifiableMap(map))
+		fun immutableAsmify(cw: ClassWriter, syntaxTree: SyntaxTree): Asmify {
+			return Asmify(cw, Tables.immutableTable(syntaxTree))
 		}
 
 		@JvmStatic
-		fun getLoadType(descriptor: String): Int {
+		fun loadType(descriptor: String): Int {
 			return when (descriptor) {
 				"Z", "C", "B", "S", "I", -> Opcodes.ILOAD
 				"J" -> Opcodes.LLOAD
@@ -100,7 +75,7 @@ class Asmify private constructor(private val table: Table<*>) {
 		}
 
 		@JvmStatic
-		fun getReturnType(descriptor: String): Int {
+		fun returnType(descriptor: String): Int {
 			return when (descriptor) {
 				"Z", "C", "B", "S", "I", -> Opcodes.IRETURN
 				"J" -> Opcodes.LRETURN

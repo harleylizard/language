@@ -19,6 +19,6 @@ class Lexer {
 	private companion object {
 
 		@JvmStatic
-		private val regex = Regex("([\\\\,{}()+&:\\-*/=<>])")
+		private val regex = Regex("([\\\\,{}()+&:;\\-*/=<>])")
 	}
 }

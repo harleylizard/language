@@ -20,6 +20,7 @@ sealed interface Token {
 				"override" -> KeywordToken.OVERRIDE
 				"var" -> KeywordToken.VARIABLE
 				"array" -> KeywordToken.ARRAY
+				"set" -> KeywordToken.SET
 				"byte" -> TypeToken.BYTE
 				"short" -> TypeToken.SHORT
 				"int" -> TypeToken.INT
@@ -41,6 +42,7 @@ sealed interface Token {
 				"[" -> SeparatorToken.OPEN_SQUARE_BRACKET
 				"]" -> SeparatorToken.CLOSE_SQUARE_BRACKET
 				":" -> SeparatorToken.COLON
+				";" -> SeparatorToken.SEMI_COLON
 				"," -> SeparatorToken.COMMA
 				else -> IdentifierToken(value)
 			}

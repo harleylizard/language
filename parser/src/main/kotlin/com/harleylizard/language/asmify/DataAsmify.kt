@@ -1,10 +1,8 @@
 package com.harleylizard.language.asmify
 
-import com.harleylizard.language.asmify.Asmify.Companion.getLoadType
-import com.harleylizard.language.asmify.Asmify.Companion.getReturnType
 import com.harleylizard.language.tree.DataElement
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.tree.*
+import org.objectweb.asm.tree.ClassNode
 
 class DataAsmify(private val asmify: Asmify) {
 
@@ -15,7 +13,8 @@ class DataAsmify(private val asmify: Asmify) {
 
 		val fields = data.fields
 		for (field in fields) {
-			val member = node.visitField(Opcodes.ACC_PRIVATE or Opcodes.ACC_FINAL, field.name, asmify.descriptor(field.type), null, null)
+			val access = if (field.setter) Opcodes.ACC_PRIVATE else Opcodes.ACC_PRIVATE or Opcodes.ACC_FINAL
+			val member = node.visitField(access, field.name, asmify.descriptor(field.type), null, null)
 			member.visitEnd()
 		}
 
@@ -35,14 +34,16 @@ class DataAsmify(private val asmify: Asmify) {
 			constructor.visitVarInsn(Opcodes.ALOAD, 0)
 
 			val type = asmify.descriptor(field.type)
-			constructor.visitVarInsn(getLoadType(type), i + 1)
+			constructor.visitVarInsn(Asmify.loadType(type), i + 1)
 			constructor.visitFieldInsn(Opcodes.PUTFIELD, qualifier, name, type)
 		}
 		constructor.visitInsn(Opcodes.RETURN)
 		constructor.visitEnd()
 
 		for (operator in data.operators) {
-			FunctionAsmify(asmify).asmify(operator).accept(node)
+			val op = node.visitMethod(Opcodes.ACC_PUBLIC, operator.name, builder.toString(), null, null)
+			op.visitCode()
+			op.visitEnd()
 		}
 
 		for (field in fields) {
@@ -52,8 +53,19 @@ class DataAsmify(private val asmify: Asmify) {
 			getter.visitCode()
 			getter.visitVarInsn(Opcodes.ALOAD, 0)
 			getter.visitFieldInsn(Opcodes.GETFIELD, qualifier, name, type)
-			getter.visitInsn(getReturnType(type))
+			getter.visitInsn(Asmify.returnType(type))
 			getter.visitEnd()
+
+			if (field.setter) {
+				val setter = node.visitMethod(Opcodes.ACC_PUBLIC, "set$name", "($type)V", null, null)
+				setter.visitCode()
+				setter.visitParameter(name, Opcodes.ACC_PUBLIC)
+				setter.visitVarInsn(Opcodes.ALOAD, 0)
+				setter.visitVarInsn(Asmify.loadType(type), 1)
+				setter.visitFieldInsn(Opcodes.PUTFIELD, qualifier, name, type)
+				setter.visitInsn(Opcodes.RETURN)
+				setter.visitEnd()
+			}
 		}
 		node.visitEnd()
 		return node

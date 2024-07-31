@@ -1,8 +1,10 @@
 package com.harleylizard.language.tests
 
+import com.harleylizard.language.asmify.Acceptor
 import com.harleylizard.language.asmify.Asmify
 import com.harleylizard.language.token.Lexer
 import com.harleylizard.language.tree.Grammar
+import com.harleylizard.language.tree.Named
 import org.junit.jupiter.api.Test
 import org.objectweb.asm.ClassWriter
 import java.io.ByteArrayOutputStream
@@ -16,20 +18,20 @@ class AsmifyTest {
 		val tokens = Lexer().parse(Resources.readString("test.language"))
 		val syntaxTree = Grammar().parse(tokens)
 
-		val asmify = Asmify.create(syntaxTree)
+		for (element in syntaxTree.elements) {
+			if (element is Acceptor && element is Named) {
+				val cw = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
+				val asmify = Asmify.immutableAsmify(cw, syntaxTree)
 
-		for (clazz in syntaxTree.classes) {
-			val cw = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
-			val node = asmify.asmify(clazz)
-			node.accept(cw)
+				element.accepts(asmify)
+				ByteArrayOutputStream().use { of ->
+					val path = Paths.get("build/classes/language/", "${asmify.qualifier(element.name)}.class")
+					path.parent.takeUnless(Files::isDirectory)?.let(Files::createDirectories)
 
-			ByteArrayOutputStream().use { of ->
-				val path = Paths.get("build/classes/language/", "${clazz.name}.class")
-				path.parent.takeUnless(Files::isDirectory)?.let(Files::createDirectories)
-
-				Files.newOutputStream(path).use {
-					of.writeBytes(cw.toByteArray())
-					of.writeTo(it)
+					Files.newOutputStream(path).use {
+						of.writeBytes(cw.toByteArray())
+						of.writeTo(it)
+					}
 				}
 			}
 		}

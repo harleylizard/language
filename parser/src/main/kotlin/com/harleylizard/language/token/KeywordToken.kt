@@ -12,7 +12,8 @@ enum class KeywordToken : Token {
 	OPERATOR,
 	OVERRIDE,
 	VARIABLE,
-	ARRAY
+	ARRAY,
+	SET
 	;
 
 	override val asString: String

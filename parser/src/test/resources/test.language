@@ -1,16 +1,9 @@
 package com.example
 
-interface Entity {
+data MutableBlockPos {
+    x: int; set
+    y: int; set
+    z: int; set
+
 }
 
-interface Living {
-}
-
-trait Flammable : Living {
-}
-
-class Pig : Living {
-}
-
-class Zombie : Living, Flammable {
-}

@@ -1,12 +1,12 @@
 package com.harleylizard.language.asmify
 
-import com.harleylizard.language.tree.JavaClassElement
+import com.harleylizard.language.tree.ClassElement
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 
-class JavaClassAsmify(private val asmify: Asmify) {
+class ClassAsmify(private val asmify: Asmify) {
 
-	fun asmify(klass: JavaClassElement): ClassNode {
+	fun asmify(klass: ClassElement): ClassNode {
 		val supers = klass.supers
 
 		val interfaces = mutableListOf<String>()

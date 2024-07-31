@@ -10,192 +10,17 @@ class Grammar {
 		iterator.expect(KeywordToken.PACKAGE)
 		val packageName = iterator.identifier()
 
-		val classes = mutableListOf<ClassElement>()
+		val elements = mutableListOf<Element>()
 		while (iterator.hasNext) {
 			when (iterator.token) {
-				KeywordToken.INTERFACE -> classes += jnterface(iterator)
-				KeywordToken.CLASS -> classes += klass(iterator)
-				KeywordToken.DATA -> classes += data(iterator)
-				KeywordToken.TRAIT -> classes += trait(iterator)
+				KeywordToken.INTERFACE -> elements += InterfaceParser.jnterface(iterator)
+				KeywordToken.CLASS -> elements += ClassParser.klass(iterator)
+				KeywordToken.DATA -> elements += DataParser.data(iterator)
+				KeywordToken.TRAIT -> elements += TraitParser.trait(iterator)
 				else -> iterator.skip()
 			}
 		}
-		return SyntaxTree(packageName, emptyMap(), emptyMap(), ListElement.unmodifiable(classes))
-	}
-
-	private fun jnterface(iterator: TokenIterator): InterfaceElement {
-		iterator.expect(KeywordToken.INTERFACE)
-		val name = iterator.identifier()
-
-		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
-		val functions = mutableListOf<InterfaceFunctionElement>()
-
-		while (!iterator.compare(SeparatorToken.CLOSE_CURLY_BRACKET)) {
-			when (iterator.token) {
-				KeywordToken.FUNCTION -> functions += interfaceFunction(iterator)
-				else -> iterator.skip()
-			}
-		}
-		iterator.skip()
-		return InterfaceElement(name, ListElement.unmodifiable(functions))
-	}
-
-	private fun interfaceFunction(iterator: TokenIterator): InterfaceFunctionElement {
-		iterator.expect(KeywordToken.FUNCTION)
-		val name = iterator.identifier()
-
-		iterator.expect(SeparatorToken.OPEN_ROUND_BRACKET)
-		val parameters = mutableListOf<VariableElement>()
-
-		while (!iterator.compare(SeparatorToken.CLOSE_ROUND_BRACKET)) {
-			parameters += variable(iterator)
-
-			iterator.maybeIs(SeparatorToken.COMMA)
-		}
-		iterator.skip()
-
-		val type = returnType(iterator)
-
-		return InterfaceFunctionElement(name, type, ListElement.unmodifiable(parameters))
-	}
-
-	private fun trait(iterator: TokenIterator): TraitElement {
-		iterator.expect(KeywordToken.TRAIT)
-		val name = iterator.identifier()
-
-		var type: String? = null
-		if (iterator.maybeIs(SeparatorToken.COLON)) {
-			type = iterator.identifier()
-		}
-		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
-		iterator.expect(SeparatorToken.CLOSE_CURLY_BRACKET)
-
-		return TraitElement(name, type)
-	}
-
-	private fun klass(iterator: TokenIterator): JavaClassElement {
-		iterator.expect(KeywordToken.CLASS)
-		val name = iterator.identifier()
-
-		val supers = supers(iterator)
-		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
-		val functions = mutableListOf<FunctionElement>()
-
-		while (!iterator.compare(SeparatorToken.CLOSE_CURLY_BRACKET)) {
-			when (iterator.token) {
-				KeywordToken.FUNCTION -> functions += function(iterator)
-				else -> iterator.skip()
-			}
-		}
-		iterator.skip()
-		return JavaClassElement(name, supers, ListElement.unmodifiable(functions))
-	}
-
-	private fun supers(iterator: TokenIterator): ListElement<SuperElement> {
-		val supers = mutableListOf<SuperElement>()
-		if (iterator.maybeIs(SeparatorToken.COLON)) {
-			while (!iterator.compare(SeparatorToken.OPEN_CURLY_BRACKET)) {
-				supers += SuperElement(iterator.identifier())
-
-				if (iterator.token is IdentifierToken) {
-					iterator.skip()
-				}
-				if (iterator.compare(SeparatorToken.COMMA)) {
-					iterator.skip()
-				}
-			}
-		}
-		return ListElement.unmodifiable(supers)
-	}
-
-
-	private fun function(iterator: TokenIterator): FunctionElement {
-		iterator.expect(KeywordToken.FUNCTION)
-		val name = iterator.identifier()
-
-		iterator.expect(SeparatorToken.OPEN_ROUND_BRACKET)
-		val parameters = mutableListOf<VariableElement>()
-
-		while (!iterator.compare(SeparatorToken.CLOSE_ROUND_BRACKET)) {
-			parameters += variable(iterator)
-			iterator.maybeIs(SeparatorToken.COMMA)
-		}
-		iterator.skip()
-
-		val type = returnType(iterator)
-		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
-		iterator.expect(SeparatorToken.CLOSE_CURLY_BRACKET)
-
-		return FunctionElement(name, type, ListElement.unmodifiable(parameters))
-	}
-
-	private fun data(iterator: TokenIterator): DataElement {
-		iterator.expect(KeywordToken.DATA)
-		val name = iterator.identifier()
-
-		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
-		val fields = mutableListOf<VariableElement>()
-		val operators = mutableListOf<FunctionElement>()
-
-		while (!iterator.compare(SeparatorToken.CLOSE_CURLY_BRACKET)) {
-			when (iterator.token) {
-				is IdentifierToken -> fields += variable(iterator)
-				KeywordToken.OPERATOR -> operators += operatorFunction(iterator)
-				else -> iterator.skip()
-			}
-		}
-		iterator.skip()
-		return DataElement(name, ListElement.unmodifiable(fields), ListElement.unmodifiable(operators))
-	}
-
-	private fun operatorFunction(iterator: TokenIterator): FunctionElement {
-		iterator.expect(KeywordToken.OPERATOR)
-		iterator.either(
-			OperatorToken.ADD,
-			OperatorToken.MINUS,
-			OperatorToken.MULTIPLY,
-			OperatorToken.DIVIDE
-		)
-		val name = (iterator.token as OperatorToken).asString
-		iterator.skip()
-
-		iterator.expect(SeparatorToken.OPEN_ROUND_BRACKET)
-		val parameter = variable(iterator)
-		iterator.expect(SeparatorToken.CLOSE_ROUND_BRACKET)
-
-		val type = returnType(iterator)
-
-		iterator.expect(SeparatorToken.OPEN_CURLY_BRACKET)
-		iterator.expect(SeparatorToken.CLOSE_CURLY_BRACKET)
-		return FunctionElement(name, type, ListElement.singular(parameter))
-	}
-
-	private fun variable(iterator: TokenIterator): VariableElement {
-		val name = iterator.identifier()
-		iterator.expect(SeparatorToken.COLON)
-		val type = type(iterator)
-		return VariableElement(name, type)
-	}
-
-	private fun returnType(iterator: TokenIterator): String? {
-		var type: String? = null
-		if (iterator.maybeIs(OperatorToken.MINUS)) {
-			iterator.expect(OperatorToken.GREATER_THAN)
-			type = type(iterator)
-		}
-		return type
-	}
-
-	private fun type(iterator: TokenIterator): String {
-		if (iterator.maybeIs(KeywordToken.ARRAY)) {
-			iterator.expect(OperatorToken.LESS_THAN)
-			val type = type(iterator)
-			iterator.expect(OperatorToken.GREATER_THAN)
-			return "[$type"
-		}
-		val type = iterator.token.asString
-		iterator.skip()
-		return type;
+		return SyntaxTree(packageName, emptyMap(), emptyMap(), ListElement.unmodifiable(elements))
 	}
 
 	class TokenIterator(tokens: List<Token>) {
@@ -232,7 +57,7 @@ class Grammar {
 			skip()
 		}
 
-		fun maybeIs(type: Token): Boolean {
+		fun skipIf(type: Token): Boolean {
 			if (token == type) {
 				skip()
 				return true
@@ -250,6 +75,27 @@ class Grammar {
 			throw RuntimeException("expected identifier, got $token")
 		}
 
-		fun compare(type: Token) = token == type
+		fun type(): String {
+			if (skipIf(KeywordToken.ARRAY)) {
+				expect(OperatorToken.LESS_THAN)
+				val type = type()
+				expect(OperatorToken.GREATER_THAN)
+				return "[$type"
+			}
+			val type = token.asString
+			skip()
+			return type;
+		}
+
+		fun returnType(): String? {
+			var type: String? = null
+			if (equalTo(OperatorToken.MINUS)) {
+				expect(OperatorToken.GREATER_THAN)
+				type = type()
+			}
+			return type
+		}
+
+		fun equalTo(type: Token) = token == type
 	}
 }

@@ -1,0 +1,49 @@
+package com.example
+
+enum Direction {
+    NORTH Position {
+        0, 0, -1
+    }
+    EAST Position {
+        -1, 0, 0
+    }
+    SOUTH Position {
+        0, 0, 1
+    }
+    WEST Position {
+        1, 0, 0
+    }
+
+    position: Position
+}
+
+data Position {
+    x: int
+    y: int
+    z: int
+
+    operator +(position: Position) -> Position {
+        return Position {
+            x + position.x,
+            y + position.y,
+            z + position.z
+        }
+    }
+
+    operator +(direction: Direction) -> Position {
+        return this + direction.position
+    }
+}
+
+class Foo {
+    var position = Position {
+        0, 0, 0
+    }
+
+    function bar() {
+        for (direction : Direction) {
+            var relative = position + direction
+
+        }
+    }
+}

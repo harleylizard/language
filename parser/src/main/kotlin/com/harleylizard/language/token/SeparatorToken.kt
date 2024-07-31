@@ -8,6 +8,7 @@ enum class SeparatorToken : Token {
 	OPEN_SQUARE_BRACKET,
 	CLOSE_SQUARE_BRACKET,
 	COLON,
+	SEMI_COLON,
 	COMMA
 	;
 
