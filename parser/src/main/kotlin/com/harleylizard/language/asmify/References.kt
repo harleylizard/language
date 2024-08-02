@@ -27,17 +27,19 @@ fun <T : Element, J : T> Table<T>.reference(name: String, klass: KClass<J>): Ref
 object Tables {
 
 	@JvmStatic
-	fun immutableTable(syntaxTree: SyntaxTree): Table<Element> {
+	fun immutableTable(sourceName: String, syntaxTree: SyntaxTree): Table<Element> {
+		val packageName = syntaxTree.packageName.replace(".", "/")
 		val map = mutableMapOf<String, Reference<Element>>()
 
 		for (element in syntaxTree.elements) {
 			if (element is Named) {
 				val name = element.name
-				val qualifier = "${syntaxTree.packageName.replace(".", "/")}/$name"
+				val qualifier = "$packageName/$name"
 
 				map[name] = Reference(name, qualifier, emptyList(), element)
 			}
 		}
+		map[sourceName] = Reference(sourceName, "$packageName/$sourceName", emptyList(), EmptyElement)
 		return Collections.unmodifiableMap(map)
 	}
 }

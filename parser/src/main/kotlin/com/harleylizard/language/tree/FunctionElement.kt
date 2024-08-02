@@ -1,13 +1,20 @@
 package com.harleylizard.language.tree
 
+import com.harleylizard.language.asmify.Asmify
+import com.harleylizard.language.asmify.StaticFunctionAsmify
 import com.harleylizard.language.token.KeywordToken
 import com.harleylizard.language.token.SeparatorToken
+import org.objectweb.asm.tree.ClassNode
 
 data class FunctionElement(
 	val name: String,
 	val type: String?,
 	val parameters: ListElement<ParameterElement>
 ) : Element {
+
+	fun accepts(node: ClassNode, asmify: Asmify) {
+		StaticFunctionAsmify(asmify).asmify(this).accept(node)
+	}
 
 	companion object {
 

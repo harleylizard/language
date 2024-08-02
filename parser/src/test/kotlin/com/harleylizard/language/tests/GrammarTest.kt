@@ -11,7 +11,7 @@ class GrammarTest {
 		val lexer = Lexer()
 		val grammar = Grammar()
 
-		val tokens = lexer.parse(Resources.readString("test.language"))
+		val tokens = lexer.parse(Resources.readString("Test.language"))
 		val syntaxTree = grammar.parse(tokens)
 
 		println(syntaxTree.packageName)

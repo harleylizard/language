@@ -1,4 +1,5 @@
 plugins {
+    kotlin("jvm") version "2.0.0"
     `java-gradle-plugin`
     `maven-publish`
 }
@@ -6,8 +7,14 @@ plugins {
 group = "com.harleylizard"
 version = "1.0-SNAPSHOT"
 
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
 dependencies {
-    api(project(":parser"))
+    api("com.harleylizard:parser:1.0-SNAPSHOT")
+    //api(project("**/language/parser"))
 }
 
 gradlePlugin {

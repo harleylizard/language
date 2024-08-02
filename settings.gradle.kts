@@ -1,8 +1,15 @@
 pluginManagement {
 	repositories {
 		gradlePluginPortal()
-		mavenCentral()
 		mavenLocal()
+		mavenCentral()
+	}
+	resolutionStrategy {
+		eachPlugin {
+			if (requested.id.id == "language") {
+				useModule("com.harleylizard:gradle-plugin:1.0-SNAPSHOT")
+			}
+		}
 	}
 }
 plugins {
@@ -10,5 +17,5 @@ plugins {
 }
 rootProject.name = "language"
 include("parser")
-include("gradle-plugin")
 include("examples")
+includeBuild("gradle-plugin")

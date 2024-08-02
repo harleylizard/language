@@ -17,6 +17,7 @@ class Grammar {
 				KeywordToken.CLASS -> elements += ClassParser.klass(iterator)
 				KeywordToken.DATA -> elements += DataParser.data(iterator)
 				KeywordToken.TRAIT -> elements += TraitParser.trait(iterator)
+				KeywordToken.FUNCTION -> elements += FunctionElement.function(iterator)
 				else -> iterator.skip()
 			}
 		}
@@ -90,6 +91,7 @@ class Grammar {
 		fun returnType(): String? {
 			var type: String? = null
 			if (equalTo(OperatorToken.MINUS)) {
+				skip()
 				expect(OperatorToken.GREATER_THAN)
 				type = type()
 			}

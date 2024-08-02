@@ -1,0 +1,7 @@
+package com.harleylizard.examples
+
+import java.lang.String
+
+function main(args: array<String>) {
+
+}

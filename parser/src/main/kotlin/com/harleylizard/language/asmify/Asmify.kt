@@ -4,6 +4,7 @@ import com.harleylizard.language.tree.*
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.MethodNode
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -59,8 +60,8 @@ class Asmify private constructor(private val cw: ClassWriter, private val table:
 	companion object {
 
 		@JvmStatic
-		fun immutableAsmify(cw: ClassWriter, syntaxTree: SyntaxTree): Asmify {
-			return Asmify(cw, Tables.immutableTable(syntaxTree))
+		fun immutableAsmify(sourceName: String, cw: ClassWriter, syntaxTree: SyntaxTree): Asmify {
+			return Asmify(cw, Tables.immutableTable(sourceName, syntaxTree))
 		}
 
 		@JvmStatic

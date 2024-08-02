@@ -1,9 +1,0 @@
-package com.example
-
-data MutableBlockPos {
-    x: int; set
-    y: int; set
-    z: int; set
-
-}
-

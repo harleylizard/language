@@ -1,5 +1,6 @@
 plugins {
-    //id("language") version "1.0-SNAPSHOT"
+    id("java")
+    id("language")
 }
 
 group = "com.harleylizard"
